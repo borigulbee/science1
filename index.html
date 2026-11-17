@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="초등 3학년 과학: 달이 끌어당기는 힘과 지구의 회전으로 밀물과 썰물이 생기는 원리를 배우는 시뮬레이션">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.5 system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>밀물 썰물 탐험대</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: 한 화면에 한 단계. 위에 단계 띠, 가운데 큰 무대(그림+조작), 아래 이전/다음. 우주 그림은 두 테마 모두 밤하늘. */
+:root{
+  --bg:#EAF4F8; --paper:#FFFFFF; --ink:#173445; --muted:#4D6878; --line:#C7DBE5; --soft:#E1EFF6;
+  --sea:#2A7FBF; --sea-deep:#1C5E92; --sea-soft:#CFE6F5;
+  --moon:#F5C842; --moon-ink:#7A5A00; --sun:#FFB347;
+  --flag:#E0443A; --roof2:#5C7FD6; --house:#FFF6E6; --hull:#F7F3EC; --sail:#FFFFFF; --pole:#8A6A4A;
+  --sand:#E8CF9A; --mud:#A98A62; --grass:#86C06E; --land:#7DB866; --land-2:#5E9A4C;
+  --sky:#CDEBFA; --cloud:#FFFFFF; --space:#14213A; --stand:#C9B79C; --table:#D9C6A5;
+  --ok:#2E8F52; --ok-soft:#DCF2E4; --no:#C93C3C; --no-soft:#FBE4E1;
+  --display:"Jua","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1A23; --paper:#142632; --ink:#E3EFF5; --muted:#9BB4C2; --line:#2A4453; --soft:#1A3140;
+  --sea:#3F95D6; --sea-deep:#7DBDEB; --sea-soft:#1D3B51;
+  --moon:#F5C842; --moon-ink:#F5D877; --sun:#FFB347;
+  --flag:#EE5A50; --roof2:#7896E0; --house:#EADFCB; --hull:#E6E0D6; --sail:#F2F2F2; --pole:#A3815E;
+  --sand:#CDB27E; --mud:#8C7150; --grass:#6FA75A; --land:#6AA556; --land-2:#4E8640;
+  --sky:#3B6684; --cloud:#C9D9E4; --space:#0F1A2E; --stand:#8E7E68; --table:#7A6A52;
+  --ok:#5CC487; --ok-soft:#173A29; --no:#F07A7A; --no-soft:#3D2023; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D1A23; --paper:#142632; --ink:#E3EFF5; --muted:#9BB4C2; --line:#2A4453; --soft:#1A3140;
+  --sea:#3F95D6; --sea-deep:#7DBDEB; --sea-soft:#1D3B51;
+  --moon:#F5C842; --moon-ink:#F5D877; --sun:#FFB347;
+  --flag:#EE5A50; --roof2:#7896E0; --house:#EADFCB; --hull:#E6E0D6; --sail:#F2F2F2; --pole:#A3815E;
+  --sand:#CDB27E; --mud:#8C7150; --grass:#6FA75A; --land:#6AA556; --land-2:#4E8640;
+  --sky:#3B6684; --cloud:#C9D9E4; --space:#0F1A2E; --stand:#8E7E68; --table:#7A6A52;
+  --ok:#5CC487; --ok-soft:#173A29; --no:#F07A7A; --no-soft:#3D2023; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto;padding-block:20px 56px;display:grid;gap:18px}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--moon);outline-offset:3px;border-radius:8px}
+
+/* 머리 */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand h1{font-size:clamp(28px,4.6vw,40px);color:var(--sea-deep)}
+.brand small{display:block;color:var(--muted);font-size:16px}
+.tipbtn{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 16px;font-size:16px;cursor:pointer}
+.tipbtn:hover{border-color:var(--sea)}
+
+/* 단계 띠 */
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.steps button{width:100%;border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:8px 6px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;line-height:1.3;min-height:64px}
+.steps button b{font-family:var(--display);font-weight:400;font-size:20px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--sea-deep)}
+.steps button[aria-current="step"]{border-color:var(--sea);background:var(--sea);color:#fff}
+.steps button[aria-current="step"] b{background:#fff;color:var(--sea)}
+@media (max-width:720px){.steps{grid-template-columns:repeat(3,1fr)}}
+
+/* 무대 */
+.step{display:grid;gap:18px}
+.stage{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:clamp(16px,3vw,28px);display:grid;gap:18px}
+.head{display:grid;gap:6px}
+.eyebrow{font-size:15px;letter-spacing:.06em;color:var(--sea);font-weight:700}
+.head h2{font-size:clamp(28px,4vw,38px)}
+.lead{font-size:21px;max-width:40em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.grid2>*{min-width:0}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto;max-width:100%}
+.scene{border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+.spacebox{border-radius:16px;overflow:hidden;background:var(--space);touch-action:none}
+.note{display:inline-flex;align-items:center;gap:6px;font-size:15px;color:var(--muted);background:var(--soft);border-radius:999px;padding:4px 12px;justify-self:start}
+.say{font-size:22px;font-family:var(--display);color:var(--sea-deep);min-height:1.6em}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-size:19px;cursor:pointer;background:var(--sea);color:#fff;font-family:var(--display);min-height:50px}
+.btn:hover{background:var(--sea-deep)}
+.btn.ghost{background:var(--soft);color:var(--sea-deep)}
+.btn.ghost:hover{background:var(--sea-soft)}
+.btn[aria-pressed="true"]{background:var(--sea-deep);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+input[type=range]{width:100%;accent-color:var(--sea);height:36px}
+label.slider{display:grid;gap:4px;font-size:17px;color:var(--muted)}
+.defs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.defs>div{background:var(--soft);border-radius:16px;padding:14px 16px}
+.defs h3{font-size:24px;color:var(--sea-deep)}
+@media (max-width:560px){.defs{grid-template-columns:1fr}}
+.tag{display:inline-block;font-family:var(--display);font-size:18px;padding:2px 14px;border-radius:999px;background:var(--sea);color:#fff}
+.tag.low{background:var(--mud)}
+
+/* 3단계 */
+.side{display:grid;gap:12px}
+.clock{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.clock .time{font-family:var(--display);font-size:30px;font-variant-numeric:tabular-nums}
+.dn{font-size:16px;padding:2px 12px;border-radius:999px;background:var(--sun);color:#4a2a00}
+.dn.night{background:var(--space);color:#fff}
+.counts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.count{border-radius:16px;padding:12px 16px;background:var(--soft);display:grid;gap:2px}
+.count span{font-size:16px;color:var(--muted)}
+.count strong{font-family:var(--display);font-weight:400;font-size:38px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--sea-deep)}
+.count.low strong{color:var(--mud)}
+.done{background:var(--ok-soft);color:var(--ink);border-radius:16px;padding:14px 18px;font-size:20px}
+.done b{font-family:var(--display);font-weight:400;color:var(--ok)}
+.seg{display:inline-flex;background:var(--soft);border-radius:999px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:8px 14px;font-size:16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--sea-deep);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.graphbox{background:var(--soft);border-radius:16px;padding:8px 10px}
+
+/* 4단계 */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:720px){.cards{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.cards{grid-template-columns:1fr}}
+.card{border:2px solid var(--line);background:var(--paper);border-radius:16px;padding:12px 14px;text-align:left;cursor:pointer;display:grid;gap:4px;font-size:18px;line-height:1.45;min-height:96px}
+.card small{color:var(--muted);font-size:14px}
+.card[aria-pressed="true"]{border-color:var(--sea);box-shadow:0 0 0 3px var(--sea-soft)}
+.card.solved small{color:var(--ok);font-weight:700}
+.detail{border-radius:18px;background:var(--soft);padding:clamp(14px,3vw,22px);display:grid;gap:14px}
+.detail .q{font-family:var(--display);font-size:clamp(24px,3.4vw,32px)}
+.ox{display:flex;gap:12px;flex-wrap:wrap}
+.ox button{width:96px;height:96px;border-radius:24px;border:3px solid var(--line);background:var(--paper);font-family:var(--display);font-size:56px;line-height:1;cursor:pointer}
+.ox button.o{color:var(--sea)} .ox button.x{color:var(--no)}
+.ox button:hover{border-color:var(--sea)}
+.ox button.picked{border-color:currentColor;box-shadow:0 0 0 4px var(--sea-soft)}
+.verdict{font-family:var(--display);font-size:26px}
+.verdict.good{color:var(--ok)} .verdict.bad{color:var(--no)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.pane{border-radius:16px;background:var(--paper);padding:10px;display:grid;gap:8px;border:3px solid transparent}
+.pane.wrong{border-color:var(--no-soft)} .pane.right{border-color:var(--ok-soft)}
+.pane h4{margin:0;font-family:var(--display);font-weight:400;font-size:19px}
+.pane.wrong h4{color:var(--no)} .pane.right h4{color:var(--ok)}
+.pane p{font-size:17px}
+.pane svg{border-radius:12px}
+.progress{font-size:17px;color:var(--muted)}
+
+/* 5단계 */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:620px){.compare{grid-template-columns:1fr}}
+.compare>div{border-radius:18px;padding:16px;background:var(--soft);display:grid;gap:8px;align-content:start}
+.compare h3{font-size:24px}
+.compare .big{font-size:21px}
+.compare em{font-style:normal;font-family:var(--display);color:var(--sea-deep)}
+.warn{border-left:6px solid var(--moon);background:var(--soft);border-radius:12px;padding:12px 16px;font-size:19px}
+
+/* 6단계 */
+.summary{font-family:var(--display);font-size:clamp(26px,4vw,36px);line-height:1.45;color:var(--ink)}
+.summary mark{background:var(--sea-soft);color:var(--sea-deep);padding:0 6px;border-radius:8px}
+.quiz{display:grid;gap:14px}
+.qitem{border-radius:16px;background:var(--soft);padding:14px 16px;display:grid;gap:10px}
+.qitem h3{font-size:22px}
+.choices{display:flex;flex-wrap:wrap;gap:8px}
+.choices button{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 18px;font-size:18px;cursor:pointer}
+.choices button.right{border-color:var(--ok);background:var(--ok-soft)}
+.choices button.wrong{border-color:var(--no);background:var(--no-soft)}
+.fb{font-size:17px;min-height:1.4em}
+.sticker{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--ok-soft);border-radius:18px;padding:14px 18px}
+.sticker svg{width:110px;flex:none}
+.sticker p{font-family:var(--display);font-size:26px;color:var(--ok)}
+
+/* 아래 이동 */
+.pager{display:flex;justify-content:space-between;gap:12px}
+
+/* 교사용 팁 */
+.tips{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--paper);border-left:1px solid var(--line);
+  box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(105%);transition:transform .25s ease;z-index:20;overflow-y:auto;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 22px;
+  display:grid;gap:14px;align-content:start;font-size:17px}
+.tips.open{transform:none}
+.tips h2{font-size:26px}
+.tips h3{font-size:20px;color:var(--sea-deep);margin-top:6px}
+.tips ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.tips .close{justify-self:end}
+.tips .box{background:var(--soft);border-radius:14px;padding:12px 14px;display:grid;gap:6px}
+.tips a{color:var(--sea-deep)}
+
+/* SVG 색 */
+.f-sky{fill:var(--sky)} .f-sea{fill:var(--sea)} .f-sea-soft{fill:var(--sea-soft)} .s-sea{stroke:var(--sea)}
+.f-land{fill:var(--land)} .f-land2{fill:var(--land-2)} .f-moon{fill:var(--moon)} .f-sun{fill:var(--sun)}
+.f-flag{fill:var(--flag)} .s-flag{stroke:var(--flag)} .f-roof{fill:var(--flag)} .f-roof2{fill:var(--roof2)}
+.f-house{fill:var(--house)} .f-hull{fill:var(--hull);stroke:var(--ink);stroke-width:2} .f-sail{fill:var(--sail);stroke:var(--ink);stroke-width:1.5}
+.f-pole{fill:var(--pole)} .f-space{fill:var(--space)} .f-ink{fill:var(--ink)} .s-ink{stroke:var(--ink)}
+.f-mud{fill:var(--mud)} .f-sand{fill:var(--sand)} .f-cloud{fill:var(--cloud)} .f-soft{fill:var(--soft)}
+.f-stand{fill:var(--stand)} .f-table{fill:var(--table)} .f-muted{fill:var(--muted)} .s-muted{stroke:var(--muted)}
+.s-white{stroke:#fff} .f-white{fill:#fff}
+.t-s{font-family:var(--body);font-size:14px;fill:var(--ink)}
+.t-w{font-family:var(--display);fill:#fff}
+.t-d{font-family:var(--display);fill:var(--ink)}
+.spin{transform-origin:70px 75px;animation:spin 6s linear infinite}
+.bob{animation:bob 2.4s ease-in-out infinite}
+.puff{animation:puff 1.6s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(-360deg)}}
+@keyframes bob{50%{transform:translateY(-6px)}}
+@keyframes puff{50%{transform:translateX(6px)}}
+.reveal{transition:opacity .4s}
+@media (prefers-reduced-motion: reduce){.spin,.bob,.puff{animation:none}.tips{transition:none}}
+</style>
+<style>
+/* 추가: 바닷길 탐험 · 한눈에 정리 · 확인 퀴즈 · 더 알아보기 */
+:root{--road:#9AA3AB;--shell:#9A6B47;--clam:#CDB58C;--fish:#6F8592;--worm:#E2899C;--open:#5DBB63;--bubble:#FFF5D6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--road:#7E878F;--shell:#B58660;--clam:#BFA67D;--fish:#8BA0AC;--worm:#E7A0B0;--open:#4CA453;--bubble:#2C2817}}
+:root[data-theme="dark"]{--road:#7E878F;--shell:#B58660;--clam:#BFA67D;--fish:#8BA0AC;--worm:#E7A0B0;--open:#4CA453;--bubble:#2C2817}
+.steps{grid-template-columns:repeat(9,minmax(0,1fr))}
+.steps button{font-size:14px}
+@media (max-width:1000px){.steps{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:600px){.steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.s-grass{stroke:var(--grass)} .f-road{fill:var(--road)} .f-shell{fill:var(--shell)} .f-clam{fill:var(--clam);stroke:var(--ink);stroke-width:.8}
+.f-fish{fill:var(--fish)} .s-worm{stroke:var(--worm)} .f-open{fill:var(--open)}
+.guide{display:flex;gap:12px;align-items:center;background:var(--bubble);border-radius:18px;padding:10px 16px}
+.guide svg{width:54px;flex:none}
+.guide p{font-size:19px;min-width:0}
+.sim4{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.sim4{grid-template-columns:1fr}}
+.panel4{display:grid;gap:12px;background:var(--soft);border-radius:16px;padding:14px}
+.status4{display:grid;gap:4px;justify-items:start}
+.status4 p{font-size:18px}
+.gauge{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.cells{display:grid;gap:3px;width:44px}
+.cells div{height:22px;border-radius:5px;border:2px solid var(--line);background:var(--paper);font-size:12px;display:grid;place-items:center;color:var(--muted)}
+.cells div.on{background:var(--sea);border-color:var(--sea);color:#fff}
+.pill{display:inline-block;padding:2px 12px;border-radius:999px;font-family:var(--display);font-size:17px}
+.pill.open{background:var(--ok-soft);color:var(--ok)} .pill.closed{background:var(--no-soft);color:var(--no)}
+.roadrow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.cr{cursor:pointer;outline:none}
+.cr:focus-visible>circle:first-child{stroke:var(--moon);stroke-width:3}
+.slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.slot{border:2px dashed var(--line);border-radius:14px;background:var(--paper);min-height:84px;display:grid;place-items:center;font-family:var(--display);font-size:26px;color:var(--muted);padding:4px;cursor:default}
+.slot.got{border-style:solid;border-color:var(--ok);cursor:pointer;font-size:15px;color:var(--ink);gap:2px}
+.slot svg{width:42px}
+.finfo{display:flex;gap:14px;align-items:center;background:var(--paper);border-radius:14px;padding:12px}
+.finfo svg{width:76px;flex:none}
+.finfo h4{margin:0;font-family:var(--display);font-weight:400;font-size:22px;color:var(--sea-deep)}
+.finfo p{font-size:17px}
+.box4{background:var(--soft);border-radius:16px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.box4 h3{font-size:22px}
+.log{margin:0;padding:0;list-style:none;display:grid;gap:6px;max-height:250px;overflow-y:auto}
+.log li{font-size:17px;font-variant-numeric:tabular-nums}
+.log li.empty{color:var(--muted)}
+.log .tag{font-size:15px;padding:1px 10px}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.caption{font-size:15px;color:var(--muted)}
+.sub{font-size:28px;margin-top:6px}
+.recap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.recap{grid-template-columns:1fr}}
+.rcol{background:var(--soft);border-radius:18px;padding:14px;display:grid;gap:10px;align-content:start}
+.rcol h3{font-size:28px;color:var(--sea-deep)}
+.rcol h3 small{font-family:var(--body);font-size:16px;color:var(--muted);margin-left:8px}
+.rcol svg{border-radius:12px}
+.rrow{display:grid;gap:6px}
+.rrow>span{font-size:15px;color:var(--muted);font-weight:700}
+.ropts{display:flex;flex-wrap:wrap;gap:6px}
+.ropts button{border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:6px 12px;font-size:17px;cursor:pointer;text-align:left}
+.ropts button.right{border-color:var(--ok);background:var(--ok-soft)}
+.ropts button.right::before{content:"√ ";color:var(--ok);font-weight:700}
+.ropts button.wrong{border-color:var(--no);background:var(--no-soft)}
+.blanks{display:grid;gap:12px;font-size:20px;margin:0;padding-left:24px}
+.blank{border:0;border-bottom:3px solid var(--sea);background:var(--sea-soft);border-radius:8px 8px 0 0;padding:0 14px;min-width:84px;font-family:var(--display);color:var(--sea-deep);cursor:pointer;font-size:20px;line-height:1.5}
+.blank.shown{background:transparent;cursor:default}
+.qpics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;max-width:720px}
+.qpics figure{margin:0;display:grid;gap:4px}
+.qpics figcaption{font-family:var(--display);font-size:17px}
+.qpics svg{border-radius:12px;border:1px solid var(--line)}
+.fb.hint{color:var(--no)} .fb.exp{color:var(--ok)}
+.mwrap{position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(36px,10vw,120px);row-gap:10px}
+.mwrap svg.mlines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mcard{border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:10px 12px;font-size:17px;cursor:pointer;text-align:left;min-height:64px;min-width:0}
+.mcard.sel{border-color:var(--sea);box-shadow:0 0 0 3px var(--sea-soft)}
+.mcard.done{border-color:var(--ok);background:var(--ok-soft)}
+.mcard.wrong{border-color:var(--no);background:var(--no-soft)}
+.cert{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--ok-soft);border-radius:18px;padding:14px 18px}
+.cert svg{width:96px;flex:none} .cert p{font-family:var(--display);font-size:24px;color:var(--ok)}
+.score{font-size:19px} .score b{font-family:var(--display);font-weight:400;font-size:30px;color:var(--sea-deep)}
+.learn{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.learn{grid-template-columns:1fr}}
+.lcard{background:var(--soft);border-radius:18px;padding:16px 18px;display:grid;gap:10px;align-content:start;min-width:0}
+.lcard h3{font-size:25px;color:var(--sea-deep)}
+.lcard .kicker{font-size:14px;letter-spacing:.06em;color:var(--sea);font-weight:700}
+.lcard svg{border-radius:12px}
+.lcard ul.plain{margin:0;padding-left:22px;display:grid;gap:4px}
+.reads{margin:0;padding:10px 0 0;list-style:none;display:grid;gap:8px;border-top:1px solid var(--line)}
+.reads a{color:var(--sea-deep);font-size:17px}
+.reads small{display:block;color:var(--muted);font-size:14px}
+.ttable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:17px;background:var(--paper);border-radius:12px;overflow:hidden}
+.ttable td{padding:8px 12px;border-bottom:1px solid var(--line)}
+.ttable td:last-child{text-align:right;font-family:var(--display)}
+.safety{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.safety{grid-template-columns:1fr 1fr}}
+.safety div{background:var(--paper);border-radius:14px;padding:10px 6px;text-align:center;font-family:var(--display);font-size:16px;line-height:1.3;display:grid;gap:4px;justify-items:center}
+.safety svg{width:44px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arMoon" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--moon)"/></marker>
+    <marker id="arInk" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--ink)"/></marker>
+    <marker id="arWhite" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#fff"/></marker>
+    <marker id="arSun" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--sun)"/></marker>
+    <marker id="arSea" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" style="fill:var(--sea)"/></marker>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 48 48" width="48" height="48" style="width:48px" aria-hidden="true"><circle cx="24" cy="24" r="22" class="f-sea"/><circle cx="24" cy="24" r="13" class="f-land"/><circle cx="40" cy="10" r="7" class="f-moon"/></svg>
+      <div><h1>밀물 썰물 탐험대</h1><small>달이 끌어당기는 힘과 바닷물 이야기 · 초등 3학년</small></div>
+    </div>
+    <button class="tipbtn" id="tipOpen" aria-expanded="false" aria-controls="tips">교사용 팁</button>
+  </header>
+
+  <nav aria-label="단계">
+    <ol class="steps" id="steps">
+      <li><button data-go="1"><b>1</b>궁금해요</button></li>
+      <li><button data-go="2"><b>2</b>바닷길 탐험</button></li>
+      <li><button data-go="3"><b>3</b>달이 끌어당겨요</button></li>
+      <li><button data-go="4"><b>4</b>지구가 빙글빙글</button></li>
+      <li><button data-go="5"><b>5</b>진짜? 가짜?</button></li>
+      <li><button data-go="6"><b>6</b>실험이랑 비교</button></li>
+      <li><button data-go="7"><b>7</b>정리해요</button></li>
+      <li><button data-go="8"><b>8</b>확인 퀴즈</button></li>
+      <li><button data-go="9"><b>9</b>더 알아보기</button></li>
+    </ol>
+  </nav>
+
+  <!-- 1단계 -->
+  <section class="step" id="step-1" aria-labelledby="h1s">
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">1단계 · 궁금해요</span>
+        <h2 id="h1s">같은 바닷가인데 왜 다를까?</h2>
+        <p class="lead">바닷가에 가면 물이 가득할 때도 있고, 물이 빠져서 갯벌이 보일 때도 있어요. 막대를 움직여 보세요.</p>
+      </div>
+      <div class="scene" id="beach1"></div>
+      <label class="slider" for="lv1">바닷물 높이
+        <input type="range" id="lv1" min="0" max="100" value="85">
+      </label>
+      <div class="row">
+        <button class="btn ghost" id="b1hi">물이 가득 찬 모습</button>
+        <button class="btn ghost" id="b1lo">물이 빠진 모습</button>
+      </div>
+      <p class="say" id="say1" aria-live="polite">지금은 바닷물이 가득 들어와 있어요.</p>
+      <div class="defs">
+        <div><h3>밀물</h3><p>바닷물이 육지 쪽으로 <b>들어오는 것</b>이에요.</p></div>
+        <div><h3>썰물</h3><p>바닷물이 바다 쪽으로 <b>빠져나가는 것</b>이에요.</p></div>
+      </div>
+      <p class="lead">다음 단계에서 우리 바닷가의 하루를 지켜보고, 그다음에 왜 그런지 알아봐요.</p>
+    </div>
+  </section>
+
+  <!-- 2단계 -->
+  <section class="step" id="step-3" aria-labelledby="h2s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">3단계 · 달이 끌어당겨요</span>
+        <h2 id="h2s">달은 지구를 끌어당겨요</h2>
+        <p class="lead">달과 지구는 서로 <b>끌어당기는 힘</b>이 있어요. 이 힘을 <b>인력</b>이라고 해요. 이 힘 때문에 바닷물이 살짝 부풀어요.</p>
+      </div>
+      <div class="grid2">
+        <div class="spacebox" id="box2">
+          <svg id="sv2" viewBox="0 0 560 560" role="img" aria-label="위에서 본 지구와 달. 바닷물이 달 쪽과 반대쪽으로 부풀어 있어요.">
+            <rect width="560" height="560" class="f-space"/>
+            <g id="st2"></g>
+            <circle cx="280" cy="280" r="215" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2" stroke-dasharray="6 8"/>
+            <ellipse id="bul2" cx="280" cy="280" rx="135" ry="100" class="f-sea"/>
+            <circle cx="280" cy="280" r="88" class="f-land"/>
+            <ellipse cx="250" cy="250" rx="26" ry="16" class="f-land2"/><ellipse cx="310" cy="320" rx="20" ry="28" class="f-land2"/><ellipse cx="245" cy="318" rx="12" ry="9" class="f-land2"/>
+            <text x="280" y="290" text-anchor="middle" class="t-w" font-size="26">지구</text>
+            <text id="lb2a" text-anchor="middle" dominant-baseline="middle" class="t-w reveal" font-size="16">부푼 곳</text>
+            <text id="lb2b" text-anchor="middle" dominant-baseline="middle" class="t-w reveal" font-size="16">부푼 곳</text>
+            <line id="ar2" stroke-width="6" stroke-linecap="round" marker-end="url(#arMoon)" class="reveal" style="stroke:var(--moon)"/>
+            <text id="al2" text-anchor="middle" dominant-baseline="middle" class="t-w reveal" font-size="17" style="fill:var(--moon)">끌어당기는 힘</text>
+            <g id="m2" tabindex="0" role="slider" aria-label="달의 위치" aria-valuemin="0" aria-valuemax="359" aria-valuenow="30" style="cursor:grab">
+              <circle id="m2c" r="30" class="f-moon"/>
+              <circle id="m2k1" r="6" fill="#000" opacity=".12"/><circle id="m2k2" r="4" fill="#000" opacity=".12"/>
+              <text id="m2t" text-anchor="middle" class="t-w" font-size="18">달</text>
+            </g>
+          </svg>
+        </div>
+        <div class="side">
+          <span class="note">바닷물이 부푼 모습은 실제보다 아주 크게 그렸어요</span>
+          <p class="say" id="say2" aria-live="polite">달 쪽과 그 반대쪽, 두 군데가 부풀었어요.</p>
+          <p>노란 <b>달</b>을 손가락으로 끌어서 지구 둘레로 옮겨 보세요. 키보드 화살표로도 옮길 수 있어요.</p>
+          <ul style="margin:0;padding-left:22px;display:grid;gap:6px">
+            <li>달을 옮기면 부푼 곳도 따라와요.</li>
+            <li>부푼 곳은 언제나 <b>두 군데</b>예요. 달 쪽과 그 반대쪽이에요.</li>
+            <li>달은 바닷물만이 아니라 땅과 사람도 끌어당겨요.</li>
+          </ul>
+          <div class="row">
+            <button class="btn" id="moonToggle" aria-pressed="false">달 숨기기</button>
+          </div>
+          <p style="color:var(--muted);font-size:17px">달을 숨기면 바닷물이 어떻게 되는지 살펴보세요.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3단계 -->
+  <section class="step" id="step-4" aria-labelledby="h3s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">4단계 · 지구가 빙글빙글</span>
+        <h2 id="h3s">지구가 돌면 우리 마을 바닷가는?</h2>
+        <p class="lead">부푼 바닷물은 달 쪽에 그대로 있어요. 대신 <b>지구가 하루에 한 바퀴</b> 돌아요. 빨간 깃발이 우리 마을이에요.</p>
+      </div>
+      <div class="grid2">
+        <div class="side">
+          <div class="spacebox">
+            <svg id="sv3" viewBox="0 0 460 460" role="img" aria-label="위에서 본 지구. 지구가 돌면서 우리 마을이 부푼 바닷물을 지나가요.">
+              <defs>
+                <radialGradient id="sunGlow"><stop offset="0" style="stop-color:var(--sun);stop-opacity:1"/><stop offset=".6" style="stop-color:var(--sun);stop-opacity:.85"/><stop offset="1" style="stop-color:var(--sun);stop-opacity:0"/></radialGradient>
+              </defs>
+              <rect width="460" height="460" class="f-space"/>
+              <g id="st3"></g>
+              <circle cx="-40" cy="230" r="100" fill="url(#sunGlow)"/>
+              <text x="12" y="236" class="t-d" font-size="22" style="fill:#4a2a00">해</text>
+              <g stroke-width="3" style="stroke:var(--sun)">
+                <line x1="66" y1="160" x2="94" y2="160" marker-end="url(#arSun)"/>
+                <line x1="72" y1="230" x2="100" y2="230" marker-end="url(#arSun)"/>
+                <line x1="66" y1="300" x2="94" y2="300" marker-end="url(#arSun)"/>
+              </g>
+              <text x="80" y="140" text-anchor="middle" class="t-w" font-size="15" style="fill:var(--sun)">햇빛</text>
+              <ellipse cx="230" cy="230" rx="128" ry="94" class="f-sea" transform="rotate(-45 230 230)"/>
+              <g id="earth3">
+                <circle cx="230" cy="230" r="80" class="f-land"/>
+                <ellipse cx="200" cy="200" rx="22" ry="14" class="f-land2"/><ellipse cx="255" cy="265" rx="18" ry="26" class="f-land2"/>
+                <ellipse cx="195" cy="262" rx="12" ry="9" class="f-land2"/><ellipse cx="262" cy="195" rx="14" ry="10" class="f-land2"/>
+              </g>
+              <path d="M230 80 A150 150 0 0 1 230 380 Z" fill="#000" opacity=".38"/>
+              <text x="380" y="420" text-anchor="middle" class="t-w" font-size="15" opacity=".8">밤인 쪽</text>
+              <text x="80" y="420" text-anchor="middle" class="t-w" font-size="15" opacity=".8">낮인 쪽</text>
+              <path d="M267.3 274.4 A58 58 0 0 0 267.3 185.6" fill="none" stroke="#fff" stroke-width="4" stroke-opacity=".85" marker-end="url(#arWhite)"/>
+              <g id="flag3">
+                <line x1="310" y1="230" x2="368" y2="230" stroke="#fff" stroke-width="3"/>
+                <polygon points="368,230 368,208 346,219" class="f-flag" stroke="#fff" stroke-width="1.5"/>
+                <circle cx="310" cy="230" r="8" class="f-flag" stroke="#fff" stroke-width="2.5"/>
+              </g>
+              <circle cx="361" cy="99" r="24" class="f-moon"/>
+              <text x="361" y="106" text-anchor="middle" class="t-d" font-size="18" style="fill:#5a4300">달</text>
+              <text id="vl3" text-anchor="middle" dominant-baseline="middle" class="t-w" font-size="16" stroke="#14213A" stroke-width="4" paint-order="stroke">우리 마을</text>
+            </svg>
+          </div>
+          <span class="note">부푼 바닷물은 실제보다 아주 크게 그렸어요</span>
+        </div>
+        <div class="side">
+          <div class="clock"><span class="time" id="clk">밤 12시</span><span class="dn night" id="dn">밤</span></div>
+          <div class="scene" id="beach3"></div>
+          <p class="say" id="say3" aria-live="polite">재생 버튼을 눌러 하루를 돌려 보세요.</p>
+          <div class="counts">
+            <div class="count"><span>물이 가득 찬 횟수 (밀물)</span><strong id="cHi">0번</strong></div>
+            <div class="count low"><span>물이 쏙 빠진 횟수 (썰물)</span><strong id="cLo">0번</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="graphbox">
+        <svg id="gr3" viewBox="0 0 600 160" role="img" aria-label="하루 동안 우리 마을 바닷물 높이 그래프"></svg>
+      </div>
+      <div class="row">
+        <button class="btn" id="play3">▶ 하루 돌려 보기</button>
+        <div class="seg" role="group" aria-label="빠르기">
+          <button data-sp="0.6" aria-pressed="false">천천히</button>
+          <button data-sp="1.2" aria-pressed="true">보통</button>
+          <button data-sp="3" aria-pressed="false">빠르게</button>
+        </div>
+      </div>
+      <label class="slider" for="tm3">시간을 직접 옮겨 보기
+        <input type="range" id="tm3" min="0" max="240" value="0">
+      </label>
+      <div class="done" id="done3" hidden aria-live="polite"><b>하루 동안 바닷물이 2번 가득 차고, 2번 빠졌어요!</b><br>지구가 한 바퀴 도는 동안 우리 마을이 부푼 곳을 두 번 지나가기 때문이에요. 그래서 밀물과 썰물은 하루에 두 번씩 생겨요.</div>
+    </div>
+  </section>
+
+  <!-- 4단계: 바닷길 탐험 -->
+  <section class="step" id="step-2" aria-labelledby="h4n" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">2단계 · 바닷길 탐험</span>
+        <h2 id="h4n">걸어서 섬에 갈 수 있을 때는 언제일까?</h2>
+        <p class="lead">우리 바닷가의 하루를 지켜보세요. 바닷물이 빠지면 마을과 섬 사이에 길이 드러나요.</p>
+      </div>
+      <div class="guide">
+        <svg viewBox="-24 -28 48 34" aria-hidden="true"><path d="M-9 -4 l-7 -4 M9 -4 l7 -4 M-8 -1 l-6 4 M8 -1 l6 4" class="s-flag" stroke-width="2" fill="none"/><ellipse cy="-6" rx="10" ry="6" class="f-flag"/><path d="M-4 -11 v-5 M4 -11 v-5" class="s-ink" stroke-width="1.6"/><circle cx="-4" cy="-16" r="2.2" class="f-ink"/><circle cx="4" cy="-16" r="2.2" class="f-ink"/><circle cx="-13" cy="-12" r="3.5" class="f-flag"/><circle cx="13" cy="-12" r="3.5" class="f-flag"/></svg>
+        <p id="guide4t" aria-live="polite"><b>칠게 박사:</b> 걸어서 섬에 갈 수 있을 때는 언제일까요? ▶ 재생을 눌러 바닷물을 지켜보세요!</p>
+      </div>
+      <div class="sim4">
+        <div class="side">
+          <div class="scene" id="isl4"></div>
+          <div class="row">
+            <button class="btn" id="play4">▶ 재생</button>
+            <div class="seg" role="group" aria-label="빠르기">
+              <button data-sp4="0.6" aria-pressed="false">느리게</button>
+              <button data-sp4="1.5" aria-pressed="true">보통</button>
+              <button data-sp4="4" aria-pressed="false">빠르게</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn ghost" id="hi4">물이 가득 찬 때 보기</button>
+            <button class="btn ghost" id="lo4">물이 빠진 때 보기</button>
+          </div>
+          <label class="slider" for="tm4">시간 옮기기 (3일 동안)
+            <input type="range" id="tm4" min="0" max="720" value="85">
+          </label>
+        </div>
+        <div class="panel4">
+          <div class="clock"><span class="time" id="clk4">오전 8:30</span><span class="dn" id="day4">1일째</span></div>
+          <div class="status4"><span class="tag" id="ph4">썰물</span><p id="phs4"></p></div>
+          <div class="gauge">
+            <div class="cells" id="cells4"><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div></div>
+            <div><p class="caption">표지판 눈금 · 바닷물의 높이</p><p class="say" id="gn4" style="min-height:0">0칸</p><p id="gtx4" style="font-size:16px"></p></div>
+          </div>
+          <div class="roadrow"><span>섬으로 가는 바닷길</span><span class="pill open" id="road4">열렸어요</span></div>
+          <button class="btn" id="walk4">섬으로 걸어가기</button>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="box4"><h3>갯벌 친구 찾기 <span id="fc4">0/5</span></h3><div class="slots" id="slots4"></div><div id="finfo4"></div></div>
+        <div class="box4">
+          <div class="roadrow"><h3>관찰 기록장</h3><button class="btn ghost" id="clr4" style="min-height:40px;padding:6px 14px;font-size:16px">기록 지우기</button></div>
+          <ol class="log" id="log4"></ol>
+          <p class="done" id="res4" hidden><b>관찰 결과:</b> 하루에 바닷물이 두 번쯤 가득 들어오고, 두 번쯤 빠져나가요. 밀물과 썰물이 번갈아 일어나요!</p>
+        </div>
+      </div>
+      <div class="box4">
+        <h3 id="gt4">오늘(1일째)의 바닷물 높이 그래프</h3>
+        <svg id="gr4" viewBox="0 0 600 160" role="img" aria-label="하루 동안 바닷물 높이와 바닷길이 열린 때"></svg>
+        <p class="caption">초록 칸은 바닷길이 열린 때, 어두운 칸은 밤이에요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5단계 -->
+  <section class="step" id="step-5" aria-labelledby="h4s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">5단계 · 진짜일까? 가짜일까?</span>
+        <h2 id="h4s">밀물 썰물 탐정이 되어 보세요</h2>
+        <p class="lead">카드를 하나 골라 읽고, 맞으면 <b style="color:var(--sea)">O</b>, 틀리면 <b style="color:var(--no)">X</b>를 눌러요.</p>
+      </div>
+      <div class="cards" id="cards"></div>
+      <p class="progress" id="prog" aria-live="polite">6장 중 0장을 풀었어요.</p>
+      <div class="detail" id="detail"></div>
+    </div>
+  </section>
+
+  <!-- 5단계 -->
+  <section class="step" id="step-6" aria-labelledby="h5s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">6단계 · 실험이랑 비교해요</span>
+        <h2 id="h5s">그릇 실험으로 흉내 내 보기</h2>
+        <p class="lead">두 그릇을 관으로 이었어요. 바다 그릇을 올렸다 내렸다 하면 갯벌 그릇의 물이 어떻게 될까요?</p>
+      </div>
+      <div class="grid2">
+        <div class="scene" style="background:var(--paper)">
+          <svg id="sv5" viewBox="0 0 600 340" role="img" aria-label="관으로 이은 두 그릇 실험"></svg>
+        </div>
+        <div class="side">
+          <label class="slider" for="lift5">바다 그릇 높이
+            <input type="range" id="lift5" min="-50" max="90" value="0">
+          </label>
+          <p class="say" id="say5" aria-live="polite">갯벌이 물에 잠겼어요. 밀물 때와 비슷해요.</p>
+          <div class="warn">이 실험은 밀물과 썰물이 <b>어떻게 보이는지</b>만 흉내 낸 거예요. 진짜 바다는 누가 그릇처럼 들었다 내렸다 하지 않아요.</div>
+        </div>
+      </div>
+      <div class="compare">
+        <div>
+          <svg viewBox="0 0 220 110" aria-hidden="true">
+            <rect x="20" y="20" width="60" height="60" fill="none" class="s-muted" stroke-width="3"/><rect x="22" y="40" width="56" height="38" class="f-sea"/>
+            <rect x="140" y="40" width="60" height="60" fill="none" class="s-muted" stroke-width="3"/><rect x="142" y="60" width="56" height="38" class="f-sea"/>
+            <path d="M80 72 C110 72,110 92,140 92" fill="none" class="s-sea" stroke-width="7"/>
+          </svg>
+          <h3>그릇 실험</h3>
+          <p class="big">물이 <em>어떻게</em> 변하는지 보여 줘요.</p>
+          <p>갯벌이 잠겼다가 드러나는 모습을 볼 수 있어요.</p>
+        </div>
+        <div>
+          <svg viewBox="0 0 220 110" aria-hidden="true">
+            <rect width="220" height="110" rx="12" class="f-space"/>
+            <ellipse cx="90" cy="55" rx="48" ry="34" class="f-sea"/><circle cx="90" cy="55" r="28" class="f-land"/>
+            <circle cx="185" cy="55" r="13" class="f-moon"/>
+            <path d="M104 74 A24 24 0 0 0 104 36" fill="none" stroke="#fff" stroke-width="3" marker-end="url(#arWhite)"/>
+          </svg>
+          <h3>지구 돌리기</h3>
+          <p class="big"><em>왜</em> 그런지 보여 줘요.</p>
+          <p>달이 끌어당겨 바닷물이 부풀고, 지구가 돌아요.</p>
+          <div><button class="btn ghost" data-go="4">4단계 다시 보기</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6단계 -->
+  <section class="step" id="step-7" aria-labelledby="h6s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">7단계 · 정리해요</span>
+        <h2 id="h6s">한 줄로 정리해요</h2>
+      </div>
+      <p class="summary"><mark>달이 끌어당겨</mark> 바닷물이 부풀고, <mark>지구가 돌아서</mark> 밀물과 썰물이 생겨요. 밀물과 썰물은 <mark>하루에 두 번씩</mark> 생겨요.</p>
+      <h3 class="sub">한눈에 정리</h3>
+      <p>그림을 보고 알맞은 것을 눌러 √ 표 해 봐요. 다 함께 소리 내어 읽어 봐요.</p>
+      <div class="recap" id="recap7"></div>
+      <div class="row"><button class="btn ghost" id="rcAll">정답 모두 보기</button><button class="btn ghost" id="rcReset">처음부터 다시</button></div>
+      <h3 class="sub">정리해 볼까요?</h3>
+      <p>빈칸을 누르면 답이 나타나요. 먼저 말해 보고 눌러서 확인해요.</p>
+      <ol class="blanks" id="blanks7"></ol>
+      <h3 class="sub">왜 그런지 확인해요</h3>
+      <div class="quiz" id="quiz"></div>
+      <div class="sticker" id="sticker" hidden>
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="56" class="f-sea"/>
+          <path d="M60 18 L71 45 L100 47 L77 65 L85 94 L60 78 L35 94 L43 65 L20 47 L49 45 Z" class="f-moon"/>
+        </svg>
+        <p>밀물 썰물 박사가 되었어요!</p>
+      </div>
+      <p class="progress" id="qprog">세 문제를 모두 맞히면 칭찬 스티커를 받아요.</p>
+    </div>
+  </section>
+
+  <!-- 8단계: 확인 퀴즈 -->
+  <section class="step" id="step-8" aria-labelledby="h8s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">8단계 · 확인 퀴즈</span>
+        <h2 id="h8s">바닷길 탐험대 확인 퀴즈</h2>
+        <p class="lead">시뮬레이터에서 본 것을 떠올리며 풀어 보세요. 틀려도 다시 고를 수 있어요.</p>
+      </div>
+      <p class="score">처음에 바로 맞힌 문제 <b id="sc8">0</b> / 8</p>
+      <div class="cert" id="cert8" hidden>
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" class="f-sea"/><path d="M60 18 L71 45 L100 47 L77 65 L85 94 L60 78 L35 94 L43 65 L20 47 L49 45 Z" class="f-moon"/></svg>
+        <p>바닷길 탐험대 인증! 모든 문제를 해결했어요.</p>
+      </div>
+      <div class="qitem">
+        <h3>선 잇기: 바닷물의 이동과 높이 변화를 이어 보세요</h3>
+        <p style="font-size:17px;color:var(--muted)">왼쪽 카드를 먼저 누르고, 알맞은 오른쪽 카드를 누르세요.</p>
+        <div class="mwrap" id="mwrap8"><svg class="mlines" id="mlines8" aria-hidden="true"></svg></div>
+        <p class="fb" id="mfb8" aria-live="polite"></p>
+      </div>
+      <div class="quiz" id="quiz8"></div>
+    </div>
+  </section>
+
+  <!-- 9단계: 더 알아보기 -->
+  <section class="step" id="step-9" aria-labelledby="h9s" hidden>
+    <div class="stage">
+      <div class="head">
+        <span class="eyebrow">9단계 · 더 알아보기</span>
+        <h2 id="h9s">바다와 함께 사는 이야기</h2>
+        <p class="lead">밀물과 썰물에 얽힌 진짜 이야기와 바닷가 안전 약속이에요. 글 제목을 누르면 새 창에서 열려요.</p>
+      </div>
+      <div class="learn">
+        <article class="lcard">
+          <span class="kicker">왜 그럴까?</span>
+          <h3>달이 바닷물을 살짝 끌어당겨요</h3>
+          <svg viewBox="0 0 220 110" aria-hidden="true">
+            <rect width="220" height="110" rx="12" class="f-space"/>
+            <ellipse cx="90" cy="55" rx="48" ry="34" class="f-sea"/><circle cx="90" cy="55" r="28" class="f-land"/>
+            <circle cx="185" cy="55" r="13" class="f-moon"/>
+            <line x1="142" y1="55" x2="166" y2="55" stroke-width="4" style="stroke:var(--moon)" marker-end="url(#arMoon)"/>
+          </svg>
+          <p>달은 지구의 바닷물을 조금씩 끌어당겨요. 그래서 바닷물이 달 쪽과 그 반대쪽으로 볼록하게 부풀어요.</p>
+          <p>지구가 하루에 한 바퀴 도는 동안 우리 바닷가는 부푼 곳을 두 번쯤 지나가요. 그래서 밀물과 썰물이 하루에 두 번쯤씩 생겨요.</p>
+          <div class="row"><button class="btn ghost" data-go="3">3단계 다시 보기</button><button class="btn ghost" data-go="4">4단계 다시 보기</button></div>
+          <ul class="reads">
+            <li><a href="https://astro4edu.org/ko/resources/glossary/term/360/" target="_blank" rel="noopener">조석(밀물과 썰물)이란?</a><small>국제천문연맹(IAU) 천문교육사무국 용어집</small></li>
+          </ul>
+        </article>
+        <article class="lcard">
+          <span class="kicker">바닷가 사람들</span>
+          <h3>물때표를 보고 일해요</h3>
+          <table class="ttable" id="ttable9"></table>
+          <p class="caption">물때표 예시 (2단계 바닷길 탐험 1일째)</p>
+          <p>바닷가 사람들은 바닷물이 들어오고 나가는 때를 <b>물때</b>라고 불러요. 물때표에는 날마다 바닷물이 가장 높을 때와 가장 낮을 때가 적혀 있어요.</p>
+          <p>고기잡이를 하는 어부, 갯벌에서 조개를 캐는 사람, 바닷속에 들어가 물질을 하는 제주 해녀는 물때를 보고 일할 날과 시간을 정해요. 오랫동안 이어져 온 이 ‘물때’ 지식은 2026년 3월 국가무형유산이 되었어요.</p>
+          <ul class="reads">
+            <li><a href="https://dazabi.com/insurance_magazine/article.php?id=10792" target="_blank" rel="noopener">「물때」 국가무형유산 신규 종목 지정</a><small>정책브리핑 보도자료 바탕 기사 · 2026. 3. 26.</small></li>
+            <li><a href="https://brunch.co.kr/@popmee/254" target="_blank" rel="noopener">달과 바다의 시간을 걷는 사람들: 물때, 그리고 해녀가 읽어온 삶의 방식</a><small>브런치 · 2026. 4.</small></li>
+            <li><a href="https://www.badatime.com/238.html" target="_blank" rel="noopener">진짜 물때표 보기: 서귀포 서건도</a><small>바다타임 · 날짜별 바닷물 높이와 시각</small></li>
+          </ul>
+        </article>
+        <article class="lcard">
+          <span class="kicker">진짜로 있어요</span>
+          <h3>바닷길이 열리는 곳</h3>
+          <div id="lmini9"></div>
+          <p>썰물 때 바닷물이 빠지면 육지와 섬 사이에 길이 드러나요. 전라남도 진도에서는 바다 한가운데에 폭 약 40m, 길이 약 2.8km나 되는 길이 드러나요. 이 길은 1시간쯤 열렸다가 다시 바닷물에 잠겨요.</p>
+          <p>제주 서귀포 강정동의 서건도는 썰물 때 걸어서 들어갈 수 있는 섬이에요. 충남 보령 무창포에서도 ‘신비의 바닷길’을 걸어 볼 수 있어요.</p>
+          <ul class="reads">
+            <li><a href="https://www.insight.co.kr/news/577050" target="_blank" rel="noopener">조석 간만의 차와 해저 지형이 만들어낸 ‘모세의 기적’ 진도 신비의 바닷길</a><small>인사이트 · 2026. 10. 8.</small></li>
+            <li><a href="https://www.ktriptips.com/kor/tourspot/1936039" target="_blank" rel="noopener">서건도: 썰물 때 걸어서 들어가는 서귀포의 섬</a><small>관광 정보 · 서귀포시 강정동</small></li>
+            <li><a href="https://www.khan.co.kr/article/202603171017001" target="_blank" rel="noopener">보령 무창포, ‘바닷길 열리는’ 봄 축제 개막</a><small>경향신문 · 2026. 3. 17.</small></li>
+          </ul>
+        </article>
+        <article class="lcard">
+          <span class="kicker">꼭 지켜요</span>
+          <h3>갯벌·바닷길 안전 약속</h3>
+          <div class="safety">
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="18" class="f-paper" style="fill:var(--sea-soft)"/><circle cx="24" cy="24" r="18" fill="none" class="s-sea" stroke-width="4"/><path d="M24 13 V24 L32 29" fill="none" class="s-ink" stroke-width="3" stroke-linecap="round"/></svg>물때<br>확인</div>
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="16" cy="12" r="6" class="f-ink"/><rect x="9" y="20" width="14" height="22" rx="6" class="f-sea"/><circle cx="34" cy="18" r="5" class="f-ink"/><rect x="28" y="25" width="12" height="17" rx="5" class="f-flag"/></svg>어른과<br>함께</div>
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 10 L18 6 L24 12 L30 6 L38 10 L38 42 L10 42 Z" style="fill:var(--sun)"/><path d="M24 12 V42" class="s-ink" stroke-width="2"/><rect x="13" y="24" width="22" height="4" class="f-white"/></svg>구명조끼<br>휴대전화</div>
+            <div><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 34 q5 -5 10 0 t10 0 t10 0 t10 0" fill="none" class="s-sea" stroke-width="4"/><path d="M38 18 H10" class="s-ink" stroke-width="4" marker-end="url(#arInk)"/></svg>밀물이면<br>바로 나와요</div>
+          </div>
+          <p><b>바닷물은 생각보다 훨씬 빨리 들어와요.</b></p>
+          <ul class="plain">
+            <li>가기 전에 물때(밀물·썰물 시각)를 꼭 확인해요.</li>
+            <li>혼자 가지 않고, 어른과 함께 2명 이상 가요.</li>
+            <li>구명조끼를 입고, 휴대전화를 꼭 챙겨요.</li>
+            <li>바닷물이 들어오기 시작하면 바로 육지 쪽으로 나와요.</li>
+            <li>바닷길이 물에 잠기기 시작하면 건너지 않아요.</li>
+          </ul>
+          <p>갯벌에서 물때를 놓쳐 바닷물에 갇히는 사고가 늘고 있어요. 그래서 해양경찰이 안전 약속을 꼭 지켜 달라고 당부했어요.</p>
+          <ul class="reads">
+            <li><a href="https://www.khan.co.kr/article/202604292130005/" target="_blank" rel="noopener">갯벌 고립 사고 급증, 해경 “물때 확인·2인 이상 동행” 당부</a><small>경향신문 · 2026. 4. 29.</small></li>
+            <li><a href="https://www.twig24.com/news/2026/02/13/20260213500106" target="_blank" rel="noopener">“갯벌 고립 조심하세요”… 해경, 안전사고 ‘주의보’ 발령</a><small>트윅 · 2026. 2. 13. (교사용)</small></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="pager">
+    <button class="btn ghost" id="prev">← 이전</button>
+    <button class="btn" id="next">다음 →</button>
+  </div>
+</div>
+
+<aside class="tips" id="tips" aria-label="교사용 팁" aria-hidden="true">
+  <button class="btn ghost close" id="tipClose">닫기</button>
+  <h2>교사용 팁</h2>
+  <div id="tipStep"></div>
+  <h3>그림을 단순하게 만든 부분</h3>
+  <ul>
+    <li>부푼 바닷물은 실제보다 매우 크게 그렸습니다. 실제 부풂은 바다 깊이에 비해 아주 작습니다.</li>
+    <li>4단계에서는 달을 멈춰 두어 물이 정확히 12시간마다 가득 찹니다. 실제로는 달도 움직여서 약 12시간 25분마다 가득 차고, 물때가 날마다 약 50분씩 늦어집니다. 2단계 바닷길 탐험은 이 실제 주기를 따릅니다.</li>
+    <li>반대쪽이 부푸는 이유와 태양의 영향은 다루지 않았습니다.</li>
+  </ul>
+  <h3>더 알아보기 (심화)</h3>
+  <div class="box">
+    <p><b>태양</b>도 바닷물을 끌어당깁니다. 달과 태양이 한 줄에 서면 차이가 큰 <b>사리</b>, 직각을 이루면 차이가 작은 <b>조금</b>이 됩니다.</p>
+    <p><b>우리나라 서해</b>는 해안 지형 때문에 밀물과 썰물의 차이가 커서 넓은 갯벌이 생깁니다.</p>
+    <p>국립해양조사원 <a href="https://www.khoa.go.kr" target="_blank" rel="noopener">누리집</a>의 바다누리 물때표로 하루에 물이 두 번 차는지 함께 확인해 보세요.</p>
+  </div>
+</aside>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,k)=>a+(b-a)*k;
+let RM=false; try{RM=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+
+function stars(g,w,h,n,seed){let s=seed;const r=()=>{s=(s*9301+49297)%233280;return s/233280;};let o='';
+  for(let i=0;i<n;i++){o+=`<circle cx="${(r()*w).toFixed(1)}" cy="${(r()*h).toFixed(1)}" r="${(r()*1.4+.4).toFixed(2)}" fill="#fff" opacity="${(r()*.6+.3).toFixed(2)}"/>`;}
+  g.innerHTML=o;}
+
+/* ---------- 바닷가 장면 ---------- */
+const LAND=[[0,262],[120,250],[240,228],[360,196],[450,165],[510,140],[600,128]];
+function landY(x){for(let i=0;i<LAND.length-1;i++){const[a,b]=LAND[i],[c,d]=LAND[i+1];if(x<=c)return b+(d-b)*(x-a)/(c-a);}return LAND[LAND.length-1][1];}
+function landX(y){if(y>=LAND[0][1])return 0;for(let i=0;i<LAND.length-1;i++){const[a,b]=LAND[i],[c,d]=LAND[i+1];if(y<=b&&y>=d)return a+(c-a)*(b-y)/(b-d);}return 600;}
+function beach(p){
+  const pts=LAND.map(q=>q.join(',')).join(' ')+' 600,300 0,300';
+  const crab=x=>{const y=landY(x);return `<g transform="translate(${x} ${y-6})"><path d="M-9 -2 l-6 -6 M9 -2 l6 -6 M-6 4 l-5 4 M6 4 l5 4" class="s-flag" stroke-width="2.4" fill="none"/><ellipse rx="9" ry="6" class="f-flag"/><circle cx="-3" cy="-7" r="1.8" class="f-ink"/><circle cx="3" cy="-7" r="1.8" class="f-ink"/></g>`;};
+  const house=(x,c)=>{const y=landY(x)+2;return `<g transform="translate(${x} ${y})"><rect x="-14" y="-22" width="28" height="22" class="f-house"/><path d="M-18 -21 L0 -36 L18 -21 Z" class="${c}"/><rect x="-4" y="-12" width="8" height="12" class="f-ink" opacity=".5"/></g>`;};
+  const py=landY(390);
+  return `<svg viewBox="0 0 600 300" role="img" aria-label="바닷가를 옆에서 본 모습">
+  <defs><linearGradient id="${p}g" gradientUnits="userSpaceOnUse" x1="0" y1="125" x2="0" y2="300">
+  <stop offset="0" style="stop-color:var(--grass)"/><stop offset=".1" style="stop-color:var(--grass)"/><stop offset=".13" style="stop-color:var(--sand)"/><stop offset=".33" style="stop-color:var(--sand)"/><stop offset=".42" style="stop-color:var(--mud)"/><stop offset="1" style="stop-color:var(--mud)"/></linearGradient></defs>
+  <rect width="600" height="300" class="f-sky"/>
+  <circle id="${p}sun" cx="90" cy="62" r="26" class="f-sun"/>
+  <g class="f-cloud" opacity=".9"><ellipse cx="250" cy="60" rx="34" ry="13"/><ellipse cx="275" cy="52" rx="24" ry="13"/><ellipse cx="460" cy="80" rx="28" ry="10"/></g>
+  <polygon points="${pts}" fill="url(#${p}g)"/>
+  ${house(530,'f-roof')}${house(575,'f-roof2')}
+  ${crab(150)}${crab(215)}
+  <rect x="386" y="${(py-70).toFixed(1)}" width="8" height="76" class="f-pole"/>
+  ${[12,27,42,57].map(d=>`<rect x="386" y="${(py-d-4).toFixed(1)}" width="8" height="5" class="f-flag"/>`).join('')}
+  <polygon id="${p}w" class="f-sea" opacity=".82"/>
+  <path id="${p}wl" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".75" stroke-linecap="round"/>
+  <g id="${p}b"><path d="M2 -16 V-66" class="s-ink" stroke-width="3"/><path d="M6 -64 L6 -20 L38 -20 Z" class="f-sail"/><path d="M-42 -16 L42 -16 L30 4 L-30 4 Z" class="f-hull"/></g>
+  <rect id="${p}n" width="600" height="300" class="f-space" opacity="0" style="pointer-events:none"/>
+  <g id="${p}st" opacity="0"></g>
+  </svg>`;
+}
+const beaches={};
+function mountBeach(p,host){host.innerHTML=beach(p);beaches[p]={w:$('#'+p+'w'),wl:$('#'+p+'wl'),b:$('#'+p+'b'),n:$('#'+p+'n'),st:$('#'+p+'st'),sun:$('#'+p+'sun'),level:.85,night:0};
+  stars(beaches[p].st,600,120,30,p.length*77+11);}
+let phase=0;
+function drawBeach(p){
+  const B=beaches[p];const wy=lerp(256,168,B.level);const xc=landX(wy);
+  let top=[],line='';
+  for(let x=-20;x<=xc;x+=10){const y=wy+2.4*Math.sin(x/17+phase);top.push(`${x},${y.toFixed(1)}`);line+=(line?' L':'M')+`${x} ${y.toFixed(1)}`;}
+  top.push(`${xc.toFixed(1)},${wy.toFixed(1)}`);line+=` L${xc.toFixed(1)} ${wy.toFixed(1)}`;
+  let pts=top.join(' ');
+  for(let i=LAND.length-1;i>=0;i--){if(LAND[i][0]<xc)pts+=` ${LAND[i][0]},${LAND[i][1]}`;}
+  pts+=` -20,${LAND[0][1]}`;
+  B.w.setAttribute('points',pts);B.wl.setAttribute('d',line);
+  const ground=landY(300)-4,fl=wy+2,by=Math.min(fl,ground),tilt=clamp((fl-ground)/10,0,1)*-13;
+  B.b.setAttribute('transform',`translate(300 ${by.toFixed(1)}) rotate(${tilt.toFixed(1)})`);
+  B.n.setAttribute('opacity',(B.night*.55).toFixed(2));B.st.setAttribute('opacity',B.night.toFixed(2));B.sun.setAttribute('opacity',(1-B.night).toFixed(2));
+}
+
+/* ---------- 단계 이동 ---------- */
+let cur=1;
+const TIPS={
+1:`<h3>1단계 · 궁금해요</h3><div class="box"><p><b>발문:</b> 바닷가에서 물이 빠진 갯벌을 본 적 있나요? 같은 곳인데 왜 모습이 다를까요?</p><p><b>지도:</b> 밀물은 바닷물이 <b>들어오는 것</b>, 썰물은 <b>빠져나가는 것</b>으로 정의해 주세요. 막대를 올리면 "밀물", 내리면 "썰물"이라고 표시됩니다.</p></div>`,
+3:`<h3>3단계 · 달이 끌어당겨요</h3><div class="box"><p><b>발문:</b> 달을 옮기면 바닷물은 어떻게 될까요? 달을 숨기면요?</p><p><b>주의:</b> "자석처럼", "빨아들인다"는 표현은 피하고 "끌어당긴다"로 말해 주세요.</p><p><b>반대쪽이 왜 부풀어요?</b> 3학년은 이유까지 다루지 않아도 됩니다. 물으면 "달이 가까운 쪽은 세게, 먼 쪽은 약하게 당겨서 바다가 양쪽으로 살짝 늘어나요"라고 답할 수 있어요.</p></div>`,
+4:`<h3>4단계 · 지구가 빙글빙글</h3><div class="box"><p><b>발문:</b> 깃발이 파란 물이 두꺼운 곳을 지날 때 바닷가는 어떻게 될까요? 하루에 물이 몇 번 가득 찰까요?</p><p><b>지도:</b> 부푼 곳은 그대로 있고 <b>지구가 돈다</b>는 점을 꼭 짚어 주세요. 그래프에서 낮에도 물이 가득 차는 때(오후 3시)를 찾게 하면 "밤에만 밀물이 생긴다"는 오개념을 막을 수 있어요.</p><p>시간 막대로 오후 3시, 오후 9시를 직접 찾아보게 해도 좋습니다.</p></div>`,
+2:`<h3>2단계 · 바닷길 탐험</h3><div class="box"><p><b>발문:</b> 걸어서 섬에 갈 수 있을 때는 언제일까요? 바닷물이 들어올 때 표지판 눈금은 어떻게 될까요?</p><p><b>지도:</b> 재생하면 관찰 기록장에 '가장 높을 때'와 '가장 낮을 때'가 자동으로 적힙니다. 하루에 두 번쯤씩 생기는 것을 기록으로 확인하게 해 주세요.</p><p>갯벌 친구는 물이 빠져 갯벌이 드러났을 때만 누를 수 있습니다. 섬으로 걸어가기는 바닷길이 열려 있고, 곧 잠기지 않을 때만 출발합니다. 안전 교육과 연결해 주세요.</p><p><b>심화:</b> 이 화면은 실제처럼 약 12시간 25분마다 물이 가득 찹니다. 1일째와 2일째 기록을 비교하면 물때가 날마다 조금씩 늦어지는 것을 찾을 수 있어요.</p></div>`,
+5:`<h3>5단계 · 진짜? 가짜?</h3><div class="box"><p><b>지도:</b> 먼저 모둠별로 O·X를 정하고 이유를 말하게 한 뒤 눌러 보세요.</p><p>정답이든 아니든 <b>틀린 생각 그림</b>과 <b>바른 생각 그림</b>을 나란히 보여 줍니다. 두 그림의 차이를 말로 설명하게 하면 효과가 큽니다.</p></div>`,
+6:`<h3>6단계 · 실험이랑 비교해요</h3><div class="box"><p><b>지도:</b> 그릇 실험은 <b>결과</b>를, 지구 돌리기는 <b>원인</b>을 보여 주는 모형이라는 점을 구분해 주세요.</p><p>화면의 그릇은 아래쪽이 관으로 이어진 <b>연통관</b>입니다. 관이 그릇 가장자리를 넘어가게 꾸미면 <b>사이펀</b>이 되며, 이때는 관을 먼저 물로 채워야 하고 공기가 들어가면 흐름이 멈춥니다.</p></div>`,
+7:`<h3>7단계 · 정리해요</h3><div class="box"><p><b>지도:</b> 한 줄 정리를 함께 소리 내어 읽은 뒤, 한눈에 정리 표에 √ 표를 하게 하세요.</p><p>빈칸 채우기는 먼저 말로 답하게 한 뒤 눌러서 확인합니다. 틀린 문제는 해당 단계(2·3·4단계)로 돌아가 다시 확인하게 하면 좋습니다.</p></div>`,
+8:`<h3>8단계 · 확인 퀴즈</h3><div class="box"><p><b>지도:</b> 처음에 바로 맞힌 문제 수가 점수로 남고, 틀리면 힌트가 나온 뒤 다시 고를 수 있습니다.</p><p>선 잇기와 8문제를 모두 해결하면 '바닷길 탐험대 인증'이 나옵니다. 8번(안전) 문제는 9단계 안전 약속과 연결해 주세요.</p></div>`,
+9:`<h3>9단계 · 더 알아보기</h3><div class="box"><p><b>지도:</b> 물때표, 바닷길이 열리는 곳, 안전 약속을 읽고 이야기 나누는 활동입니다.</p><p>기사 링크는 참고 페이지에서 옮겨 온 것입니다. 수업 전에 링크가 열리는지와 내용이 알맞은지 확인해 주세요. '(교사용)' 표시 기사는 학생에게 바로 보여 주기보다 교사가 읽고 전달하는 것을 권합니다.</p></div>`
+};
+function go(n,fromHash){
+  n=clamp(n|0,1,9);cur=n;
+  $$('section.step').forEach(s=>{s.hidden=s.id!=='step-'+n;});
+  $$('#steps button').forEach(b=>{if(+b.dataset.go===n)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+  $('#prev').disabled=n===1;
+  $('#next').textContent=n===9?'처음으로 ↺':'다음 →';
+  $('#tipStep').innerHTML=TIPS[n];
+  if(n!==4&&S3.playing)setPlay(false);
+  if(n!==2&&S4.playing)setPlay4(false);
+  if(n===8)setTimeout(drawLines8,0);
+  if(!fromHash){try{if(location.hash!=='#step-'+n)location.hash='step-'+n;}catch(e){}}
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){go(+b.dataset.go);}});
+$('#prev').onclick=()=>go(cur-1);
+$('#next').onclick=()=>go(cur===9?1:cur+1);
+function fromHash(){const m=/^#step-([1-9])$/.exec(location.hash||'');if(m&&+m[1]!==cur)go(+m[1],true);}
+window.addEventListener('hashchange',fromHash);
+
+/* 교사용 팁 */
+const tips=$('#tips');
+function setTips(o){tips.classList.toggle('open',o);tips.setAttribute('aria-hidden',o?'false':'true');$('#tipOpen').setAttribute('aria-expanded',o?'true':'false');if(o)$('#tipClose').focus();}
+$('#tipOpen').onclick=()=>setTips(!tips.classList.contains('open'));
+$('#tipClose').onclick=()=>{setTips(false);$('#tipOpen').focus();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&tips.classList.contains('open')){setTips(false);$('#tipOpen').focus();}});
+
+/* ---------- 1단계 ---------- */
+mountBeach('b1',$('#beach1'));
+let t1=.85,prev1=.85;
+const lv1=$('#lv1');
+function say1(dir){const v=beaches.b1.level;let s;
+  if(dir>0)s='바닷물이 육지 쪽으로 들어와요. <span class="tag">밀물</span>';
+  else if(dir<0)s='바닷물이 바다 쪽으로 빠져나가요. <span class="tag low">썰물</span>';
+  else s=v>.6?'지금은 바닷물이 가득 들어와 있어요.':v<.35?'바닷물이 빠져서 갯벌과 게가 보여요. 배도 갯벌에 내려앉았어요.':'바닷물이 반쯤 차 있어요.';
+  $('#say1').innerHTML=s;}
+lv1.addEventListener('input',()=>{const v=lv1.value/100;const d=v-t1;t1=v;say1(Math.abs(d)<.001?0:d);});
+lv1.addEventListener('change',()=>setTimeout(()=>say1(0),900));
+function anim1(to){const from=t1;const d=to-from;t1=to;lv1.value=Math.round(to*100);say1(d);setTimeout(()=>say1(0),1400);}
+$('#b1hi').onclick=()=>anim1(1);$('#b1lo').onclick=()=>anim1(0);
+
+/* ---------- 2단계 ---------- */
+stars($('#st2'),560,560,70,7);
+const C2=280,R2=215;
+const S2={a:Math.PI/6,rx:135,ry:100,on:true,dragging:false};
+const sv2=$('#sv2');
+function pol(c,r,a){return [c+r*Math.cos(a),c-r*Math.sin(a)];}
+function draw2(){
+  const a=S2.a,deg=-a*180/Math.PI;
+  const e=$('#bul2');e.setAttribute('rx',S2.rx.toFixed(1));e.setAttribute('ry',S2.ry.toFixed(1));e.setAttribute('transform',`rotate(${deg.toFixed(1)} ${C2} ${C2})`);
+  const[mx,my]=pol(C2,R2,a);
+  $('#m2c').setAttribute('cx',mx);$('#m2c').setAttribute('cy',my);
+  $('#m2k1').setAttribute('cx',mx-9);$('#m2k1').setAttribute('cy',my-8);$('#m2k2').setAttribute('cx',mx+10);$('#m2k2').setAttribute('cy',my+6);
+  $('#m2t').setAttribute('x',mx);$('#m2t').setAttribute('y',my+52);
+  const bd=(S2.rx+88)/2+2;
+  const[l1x,l1y]=pol(C2,bd,a),[l2x,l2y]=pol(C2,bd,a+Math.PI);
+  $('#lb2a').setAttribute('x',l1x);$('#lb2a').setAttribute('y',l1y);$('#lb2b').setAttribute('x',l2x);$('#lb2b').setAttribute('y',l2y);
+  const[x1,y1]=pol(C2,146,a),[x2,y2]=pol(C2,178,a);
+  const ar=$('#ar2');ar.setAttribute('x1',x1);ar.setAttribute('y1',y1);ar.setAttribute('x2',x2);ar.setAttribute('y2',y2);
+  const[tx,ty]=pol(C2,162,a);
+  // 글씨는 화살표 옆(수직 방향)으로
+  const ox=Math.sin(a)*30,oy=Math.cos(a)*30;
+  $('#al2').setAttribute('x',(tx+ox).toFixed(1));$('#al2').setAttribute('y',(ty+oy).toFixed(1));
+  $('#m2').setAttribute('aria-valuenow',Math.round(((a*180/Math.PI)%360+360)%360));
+}
+function angFromEvent(ev){const r=sv2.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*560,y=(ev.clientY-r.top)/r.height*560;return Math.atan2(C2-y,x-C2);}
+sv2.addEventListener('pointerdown',ev=>{if(!S2.on)return;S2.dragging=true;try{sv2.setPointerCapture(ev.pointerId);}catch(e){}S2.a=angFromEvent(ev);draw2();ev.preventDefault();});
+sv2.addEventListener('pointermove',ev=>{if(!S2.dragging)return;S2.a=angFromEvent(ev);draw2();});
+const endDrag=()=>{S2.dragging=false;};
+sv2.addEventListener('pointerup',endDrag);sv2.addEventListener('pointercancel',endDrag);
+$('#m2').addEventListener('keydown',ev=>{if(!S2.on)return;const k=ev.key;if(k==='ArrowLeft'||k==='ArrowUp'){S2.a+=Math.PI/18;draw2();ev.preventDefault();}else if(k==='ArrowRight'||k==='ArrowDown'){S2.a-=Math.PI/18;draw2();ev.preventDefault();}});
+$('#moonToggle').onclick=function(){S2.on=!S2.on;this.setAttribute('aria-pressed',S2.on?'false':'true');this.textContent=S2.on?'달 숨기기':'달 다시 보이기';
+  $('#m2').style.opacity=S2.on?1:.12;['#lb2a','#lb2b','#ar2','#al2'].forEach(s=>$(s).style.opacity=S2.on?1:0);
+  $('#say2').textContent=S2.on?'달 쪽과 그 반대쪽, 두 군데가 부풀었어요.':'달이 없으면 바닷물이 지구 둘레에 고르게 퍼져요.';};
+function tick2(dt){const trx=S2.on?135:108,trY=S2.on?100:108;const k=RM?1:clamp(dt*5,0,1);
+  if(Math.abs(S2.rx-trx)>.1||Math.abs(S2.ry-trY)>.1){S2.rx=lerp(S2.rx,trx,k);S2.ry=lerp(S2.ry,trY,k);draw2();}}
+draw2();
+
+/* ---------- 3단계 ---------- */
+stars($('#st3'),460,460,60,3);
+mountBeach('b3',$('#beach3'));
+const C3=230,PHI=Math.PI/4;
+const S3={t:0,playing:false,speed:1.2,shown:{}};
+const EV=[{t:3,hi:1},{t:9,hi:0},{t:15,hi:1},{t:21,hi:0}];
+const X=t=>40+t*(530/24),Y=h=>72-h*40;
+(function buildGraph(){
+  let d='',area='';
+  for(let i=0;i<=96;i++){const t=i/4,h=Math.cos(2*(2*Math.PI*t/24-PHI));const p=`${X(t).toFixed(1)} ${Y(h).toFixed(1)}`;d+=(i?' L':'M')+p;}
+  area=d+` L${X(24)} 118 L${X(0)} 118 Z`;
+  const tk=[[0,'밤 12시'],[6,'오전 6시'],[12,'낮 12시'],[18,'오후 6시'],[24,'밤 12시']];
+  let s=`<rect x="${X(0)}" y="10" width="${X(6)-X(0)}" height="108" class="f-space" opacity=".18"/>
+  <rect x="${X(18)}" y="10" width="${X(24)-X(18)}" height="108" class="f-space" opacity=".18"/>
+  <text x="${X(3)}" y="26" text-anchor="middle" class="t-s" opacity=".75">밤</text><text x="${X(12)}" y="26" text-anchor="middle" class="t-s" opacity=".75">낮</text><text x="${X(21)}" y="26" text-anchor="middle" class="t-s" opacity=".75">밤</text>
+  <path d="${area}" class="f-sea" opacity=".18"/>
+  <path d="${d}" fill="none" class="s-sea" stroke-width="4" stroke-linecap="round"/>
+  <line x1="${X(0)}" y1="118" x2="${X(24)}" y2="118" class="s-muted" stroke-width="1.5"/>
+  ${tk.map(([t,l])=>`<line x1="${X(t)}" y1="118" x2="${X(t)}" y2="124" class="s-muted" stroke-width="1.5"/><text x="${X(t)}" y="142" text-anchor="middle" class="t-s">${l}</text>`).join('')}
+  <text x="16" y="72" text-anchor="middle" class="t-s" transform="rotate(-90 16 72)">물 높이</text>`;
+  EV.forEach(e=>{const x=X(e.t),y=Y(e.hi?1:-1);s+=`<g id="ev${e.t}" opacity="0" class="reveal"><circle cx="${x}" cy="${y}" r="7" class="${e.hi?'f-sea':'f-mud'}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${e.hi?y-14:y+24}" text-anchor="middle" class="t-d" font-size="16">${e.hi?'가득!':'쏙!'}</text></g>`;});
+  s+=`<line id="mk" y1="10" y2="118" stroke-width="2.5" class="s-flag"/><circle id="mkd" r="7" class="f-flag" stroke="#fff" stroke-width="2"/>`;
+  $('#gr3').innerHTML=s;
+})();
+function fmt(t){if(t>=24)return '밤 12시';const h=Math.floor(t),m=Math.floor((t-h)*6)*10;let p,hh;
+  if(h===0){p='밤';hh=12;}else if(h<12){p='오전';hh=h;}else if(h===12){p='낮';hh=12;}else{p='오후';hh=h-12;}
+  return `${p} ${hh}시${m?` ${m}분`:''}`;}
+function draw3(){
+  const t=S3.t,th=2*Math.PI*t/24,deg=-th*180/Math.PI;
+  $('#earth3').setAttribute('transform',`rotate(${deg.toFixed(2)} ${C3} ${C3})`);
+  $('#flag3').setAttribute('transform',`rotate(${deg.toFixed(2)} ${C3} ${C3})`);
+  const lx=C3+178*Math.cos(th),ly=C3-178*Math.sin(th);
+  $('#vl3').setAttribute('x',lx.toFixed(1));$('#vl3').setAttribute('y',ly.toFixed(1));
+  const h=Math.cos(2*(th-PHI));const dh=-Math.sin(2*(th-PHI));
+  const night=clamp(.5+1.8*Math.cos(th),0,1);
+  beaches.b3.level=(h+1)/2;beaches.b3.night=night;drawBeach('b3');
+  $('#clk').textContent=fmt(t);
+  const isDay=Math.cos(th)<0;const dn=$('#dn');dn.textContent=isDay?'낮':'밤';dn.classList.toggle('night',!isDay);
+  $('#mk').setAttribute('x1',X(t));$('#mk').setAttribute('x2',X(t));$('#mkd').setAttribute('cx',X(t));$('#mkd').setAttribute('cy',Y(h));
+  let hi=0,lo=0;EV.forEach(e=>{const on=t>=e.t-1e-6;if(on){e.hi?hi++:lo++;}$('#ev'+e.t).setAttribute('opacity',on?1:0);});
+  $('#cHi').textContent=hi+'번';$('#cLo').textContent=lo+'번';
+  let s;
+  if(h>.93)s='우리 마을이 부푼 곳에 왔어요. 물이 가득 찼어요!';
+  else if(h<-.93)s='우리 마을이 부풀지 않은 곳에 왔어요. 물이 쏙 빠졌어요!';
+  else if(dh>0)s='물이 들어오고 있어요. 밀물이에요.';
+  else s='물이 빠져나가고 있어요. 썰물이에요.';
+  if(t===0&&!S3.playing)s='재생 버튼을 눌러 하루를 돌려 보세요.';
+  const sy=$('#say3');if(sy.textContent!==s)sy.textContent=s;
+  $('#tm3').value=Math.round(t*10);
+  $('#done3').hidden=t<24;
+}
+function setPlay(p){S3.playing=p;$('#play3').textContent=p?'⏸ 멈추기':(S3.t>=24?'↺ 처음부터 다시':'▶ 하루 돌려 보기');}
+$('#play3').onclick=()=>{if(S3.playing){setPlay(false);return;}if(S3.t>=24)S3.t=0;setPlay(true);draw3();};
+$$('#step-4 .seg button[data-sp]').forEach(b=>b.onclick=()=>{S3.speed=+b.dataset.sp;$$('#step-4 .seg button[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));});
+$('#tm3').addEventListener('input',e=>{S3.t=e.target.value/10;if(S3.playing)setPlay(false);else setPlay(false);draw3();});
+function tick3(dt){if(!S3.playing)return;S3.t=Math.min(24,S3.t+dt*S3.speed);if(S3.t>=24){setPlay(false);}draw3();}
+draw3();
+
+/* ---------- 4단계 ---------- */
+const soft=`<rect width="220" height="150" rx="12" class="f-soft"/>`;
+const sp=`<rect width="220" height="150" rx="12" class="f-space"/>`;
+function miniBeach(x0,w,day,wy,extra){const s=w/100;const L=`${x0},${118} ${x0+40*s},${110} ${x0+70*s},${92} ${x0+w},${78} ${x0+w},150 ${x0},150`;
+  return `<rect x="${x0}" y="0" width="${w}" height="150" ${day?'class="f-sky"':'class="f-space"'}/>
+  <polygon points="${L}" class="f-mud"/><rect x="${x0}" y="${wy}" width="${w*.72}" height="${150-wy}" class="f-sea" opacity=".85"/>${extra||''}`;}
+const drop=(x,y)=>`<path d="M${x} ${y-10} C${x+7} ${y-1},${x+7} ${y+6},${x} ${y+6} C${x-7} ${y+6},${x-7} ${y-1},${x} ${y-10}Z" class="f-sea"/>`;
+const CARDS=[
+ {q:'달은 자석처럼 바닷물을 끌어당겨요.',a:'X',
+  ex:'달은 자석이 아니에요. 달은 바닷물뿐 아니라 땅과 사람도 모두 끌어당겨요. 이 힘을 인력이라고 해요.',
+  wc:'자석처럼 물만 끌어당긴다?',rc:'달은 물도, 땅도, 사람도 모두 끌어당겨요.',
+  w:`${soft}<path d="M80 86 v-36 a30 30 0 0 1 60 0 v36" fill="none" class="s-flag" stroke-width="18"/><rect x="71" y="80" width="18" height="14" class="f-muted"/><rect x="131" y="80" width="18" height="14" class="f-muted"/><g class="bob">${drop(96,122)}${drop(124,118)}${drop(110,136)}</g><path d="M96 108 v-6 M124 104 v-6" class="s-muted" stroke-width="2" stroke-dasharray="3 3"/>`,
+  r:`${sp}<circle cx="62" cy="78" r="44" class="f-sea"/><circle cx="62" cy="78" r="34" class="f-land"/><rect x="58" y="30" width="5" height="12" class="f-pole"/><path d="M50 34 L60 16 L71 34Z" class="f-land2"/><circle cx="96" cy="58" r="4" class="f-flag"/><path d="M96 62 v9" class="s-flag" stroke-width="3"/><circle cx="190" cy="72" r="18" class="f-moon"/>
+   <g stroke-width="3" style="stroke:var(--moon)"><line x1="108" y1="78" x2="162" y2="74" marker-end="url(#arMoon)"/><line x1="76" y1="30" x2="164" y2="62" marker-end="url(#arMoon)"/><line x1="104" y1="108" x2="164" y2="86" marker-end="url(#arMoon)"/></g>
+   <text x="32" y="140" class="t-w" font-size="13">물 · 땅 · 사람</text>`},
+ {q:'달이 바닷물을 하늘로 쭉 빨아올려요.',a:'X',
+  ex:'바닷물은 하늘로 솟지 않아요. 아주 살짝 부풀 뿐이에요. 그림에서는 잘 보이게 크게 그렸어요.',
+  wc:'물이 기둥처럼 솟아오른다?',rc:'바닷물은 살짝 부풀 뿐이에요.',
+  w:`${sp}<circle cx="110" cy="22" r="15" class="f-moon"/><rect x="99" y="42" width="22" height="70" rx="10" class="f-sea"/><circle cx="110" cy="150" r="52" class="f-sea"/><circle cx="110" cy="150" r="42" class="f-land"/>`,
+  r:`${sp}<ellipse cx="96" cy="76" rx="52" ry="42" class="f-sea"/><circle cx="96" cy="76" r="36" class="f-land"/><circle cx="196" cy="76" r="15" class="f-moon"/><text x="96" y="138" text-anchor="middle" class="t-w" font-size="13">살짝 부풀어요</text>`},
+ {q:'바닷물이 부푼 곳은 두 군데예요.',a:'O',
+  ex:'맞아요! 달 쪽과 그 반대쪽, 두 군데가 부풀어요. 그래서 밀물이 하루에 두 번 생겨요.',
+  wc:'달 쪽 한 군데만 부푼다?',rc:'달 쪽과 반대쪽, 두 군데가 부풀어요.',
+  w:`${sp}<ellipse cx="104" cy="76" rx="54" ry="40" class="f-sea"/><circle cx="90" cy="76" r="34" class="f-land"/><circle cx="196" cy="76" r="15" class="f-moon"/>`,
+  r:`${sp}<ellipse cx="92" cy="76" rx="58" ry="40" class="f-sea"/><circle cx="92" cy="76" r="34" class="f-land"/><circle cx="198" cy="76" r="14" class="f-moon"/>
+   <circle cx="142" cy="76" r="11" class="f-white"/><text x="142" y="81" text-anchor="middle" class="t-d" font-size="15">1</text><circle cx="42" cy="76" r="11" class="f-white"/><text x="42" y="81" text-anchor="middle" class="t-d" font-size="15">2</text>`},
+ {q:'낮에도 밀물이 생겨요.',a:'O',
+  ex:'맞아요! 달은 낮에도 지구를 끌어당겨요. 그래서 밀물은 낮에도 밤에도 생겨요.',
+  wc:'밤에만 물이 가득 찬다?',rc:'낮에도 물이 가득 차요.',
+  w:`<clipPath id="cp4"><rect width="220" height="150" rx="12"/></clipPath><g clip-path="url(#cp4)">${miniBeach(0,108,true,128,`<circle cx="26" cy="28" r="13" class="f-sun"/><text x="70" y="40" class="t-d" font-size="26">?</text>`)}${miniBeach(112,108,false,96,`<circle cx="138" cy="28" r="11" class="f-moon"/><circle cx="143" cy="24" r="10" class="f-space"/>`)}</g>
+   <text x="54" y="142" text-anchor="middle" class="t-w" font-size="13">낮</text><text x="166" y="142" text-anchor="middle" class="t-w" font-size="13">밤</text>`,
+  r:`<clipPath id="cp4r"><rect width="220" height="150" rx="12"/></clipPath><g clip-path="url(#cp4r)">${miniBeach(0,220,true,92,`<circle cx="40" cy="32" r="16" class="f-sun"/>`)}</g><text x="200" y="40" text-anchor="end" class="t-d" font-size="18">오후 3시</text><text x="200" y="62" text-anchor="end" class="t-s">물이 가득!</text>`},
+ {q:'바람이 불어서 밀물이 생겨요.',a:'X',
+  ex:'바람은 파도를 만들지만 밀물과 썰물을 만들지는 않아요. 바람이 없는 날에도 밀물과 썰물이 생겨요.',
+  wc:'바람이 물을 밀어서?',rc:'바람이 없어도 밀물이 생겨요.',
+  w:`<clipPath id="cp5"><rect width="220" height="150" rx="12"/></clipPath><g clip-path="url(#cp5)">${miniBeach(0,220,true,96,`<g class="f-cloud"><ellipse cx="34" cy="30" rx="24" ry="12"/><ellipse cx="52" cy="24" rx="16" ry="10"/></g><g class="puff" fill="none"><path d="M66 46 q20 -8 40 0 t40 0" class="s-muted" stroke-width="3" stroke-linecap="round"/><path d="M60 62 q20 -8 40 0 t40 0" class="s-muted" stroke-width="3" stroke-linecap="round"/></g>`)}</g>`,
+  r:`<clipPath id="cp5r"><rect width="220" height="150" rx="12"/></clipPath><g clip-path="url(#cp5r)">${miniBeach(0,220,true,96,`<rect x="176" y="34" width="4" height="50" class="f-pole"/><path d="M180 36 h8 v26 h-8z" class="f-flag"/><circle cx="196" cy="24" r="10" class="f-moon"/>`)}</g><text x="12" y="30" class="t-d" font-size="15">바람 없음</text>`},
+ {q:'바닷물이 다른 바다로 몰려가서 밀물이 생겨요.',a:'X',
+  ex:'부푼 곳은 그대로 있고, 지구가 빙글빙글 돌아요. 우리 마을이 부푼 곳을 지나갈 때 밀물이 돼요.',
+  wc:'바닷물이 다른 바다로 이사 간다?',rc:'부푼 곳은 그대로, 지구가 돌아요.',
+  w:`${soft}<path d="M20 60 C30 30,80 34,82 62 C84 92,30 100,20 60Z" class="f-sea"/><path d="M140 70 C146 40,200 42,202 72 C204 100,146 106,140 70Z" class="f-sea"/><path d="M78 46 C104 22,128 24,150 44" fill="none" class="s-ink" stroke-width="3" marker-end="url(#arInk)"/><g class="bob">${drop(112,30)}</g><text x="50" y="125" text-anchor="middle" class="t-s">이쪽 바다</text><text x="172" y="128" text-anchor="middle" class="t-s">저쪽 바다</text>`,
+  r:`${sp}<ellipse cx="70" cy="75" rx="56" ry="40" class="f-sea"/><g class="spin"><circle cx="70" cy="75" r="34" class="f-land"/><ellipse cx="58" cy="62" rx="10" ry="7" class="f-land2"/><ellipse cx="82" cy="88" rx="8" ry="11" class="f-land2"/><circle cx="104" cy="75" r="5" class="f-flag" stroke="#fff" stroke-width="1.5"/></g><path d="M86 96 A26 26 0 0 0 86 54" fill="none" stroke="#fff" stroke-width="3" marker-end="url(#arWhite)"/><circle cx="196" cy="75" r="14" class="f-moon"/>`}
+];
+const solved={};let sel=0;
+function buildCards(){$('#cards').innerHTML=CARDS.map((c,i)=>`<button class="card${solved[i]!==undefined?' solved':''}" data-c="${i}" aria-pressed="${i===sel}"><small>${solved[i]!==undefined?'✓ 풀었어요':'카드 '+(i+1)}</small>${c.q}</button>`).join('');
+  $$('#cards .card').forEach(b=>b.onclick=()=>{sel=+b.dataset.c;buildCards();showCard();});
+  const n=Object.keys(solved).length;$('#prog').textContent=n===6?'6장을 모두 풀었어요! 훌륭한 탐정이에요.':`6장 중 ${n}장을 풀었어요.`;}
+function showCard(){const c=CARDS[sel],ans=solved[sel];
+  let h=`<p class="q">${c.q}</p><div class="ox"><button class="o${ans==='O'?' picked':''}" data-ox="O" aria-label="O, 맞아요">O</button><button class="x${ans==='X'?' picked':''}" data-ox="X" aria-label="X, 틀려요">X</button></div>`;
+  if(ans!==undefined){const good=ans===c.a;
+    h+=`<p class="verdict ${good?'good':'bad'}">${good?'딩동댕! 맞았어요.':'아쉬워요! 정답은 '+c.a+'예요.'}</p><p>${c.ex}</p>
+    <div class="pair"><div class="pane wrong"><h4>✗ 이렇게 생각하면 틀려요</h4><svg viewBox="0 0 220 150" aria-hidden="true">${c.w}</svg><p>${c.wc}</p></div>
+    <div class="pane right"><h4>✓ 이게 맞아요</h4><svg viewBox="0 0 220 150" aria-hidden="true">${c.r}</svg><p>${c.rc}</p></div></div>`;
+    if(sel<5)h+=`<div><button class="btn ghost" id="nextCard">다음 카드 →</button></div>`;}
+  else h+=`<p style="color:var(--muted)">O나 X를 누르면 그림으로 설명해 줘요.</p>`;
+  $('#detail').innerHTML=h;
+  $$('#detail [data-ox]').forEach(b=>b.onclick=()=>{solved[sel]=b.dataset.ox;buildCards();showCard();});
+  const nc=$('#nextCard');if(nc)nc.onclick=()=>{sel++;buildCards();showCard();};}
+buildCards();showCard();
+
+/* ---------- 5단계 ---------- */
+const V=120,BR=230,TH=130;
+const S5={lift:0,dL:0};
+function target5(){const bL=BR-S5.lift;const H=(bL+BR-V)/2;return clamp(bL-H,0,V);}
+S5.dL=target5();
+$('#sv5').innerHTML=`<rect x="0" y="320" width="600" height="20" class="f-table"/>
+ <rect x="400" y="${BR}" width="120" height="${320-BR}" class="f-stand"/>
+ <g id="stL"><rect id="stLr" x="80" width="120" class="f-stand"/></g>
+ <path id="tubeO" fill="none" class="s-ink" stroke-width="15" stroke-linecap="round" opacity=".55"/>
+ <path id="tube" fill="none" class="s-sea" stroke-width="10" stroke-linecap="round"/>
+ <path d="M381 ${BR} C 410 ${BR}, 425 186, 460 186 C 495 186, 510 ${BR}, 539 ${BR} Z" class="f-mud"/>
+ <g transform="translate(460 180)"><path d="M-8 -2 l-5 -5 M8 -2 l5 -5" class="s-flag" stroke-width="2" fill="none"/><ellipse rx="8" ry="5" class="f-flag"/></g>
+ <rect id="wL" x="62" width="156" class="f-sea" opacity=".85"/>
+ <rect id="wR" x="382" width="156" class="f-sea" opacity=".7"/>
+ <rect id="tkL" x="60" width="160" height="${TH}" rx="4" fill="none" class="s-ink" stroke-width="4"/>
+ <rect x="380" y="${BR-TH}" width="160" height="${TH}" rx="4" fill="none" class="s-ink" stroke-width="4"/>
+ <text id="lbL" x="140" text-anchor="middle" class="t-d" font-size="20">바다 그릇</text>
+ <text x="460" y="${BR-TH-12}" text-anchor="middle" class="t-d" font-size="20">갯벌 그릇</text>`;
+function draw5(){const bL=BR-S5.lift,dR=V-S5.dL;
+  $('#stLr').setAttribute('y',bL);$('#stLr').setAttribute('height',Math.max(0,320-bL));
+  $('#tkL').setAttribute('y',bL-TH);$('#lbL').setAttribute('y',bL-TH-12);
+  $('#wL').setAttribute('y',bL-S5.dL);$('#wL').setAttribute('height',Math.max(0,S5.dL-2));
+  $('#wR').setAttribute('y',BR-dR);$('#wR').setAttribute('height',Math.max(0,dR-2));
+  const d=`M218 ${bL-8} C 300 ${bL-8}, 300 ${BR-8}, 382 ${BR-8}`;$('#tube').setAttribute('d',d);$('#tubeO').setAttribute('d',d);}
+let last5='';
+function say5(){const dR=V-S5.dL;const tgt=target5();let s;
+  if(Math.abs(tgt-S5.dL)>1.5)s=tgt<S5.dL?'물이 관을 따라 갯벌 그릇으로 들어가요.':'물이 관을 따라 바다 그릇으로 빠져나가요.';
+  else s=dR>48?'갯벌이 물에 잠겼어요. 밀물 때와 비슷해요.':'갯벌이 드러났어요. 썰물 때와 비슷해요.';
+  if(s!==last5){last5=s;$('#say5').textContent=s;}}
+$('#lift5').addEventListener('input',e=>{S5.lift=+e.target.value;draw5();say5();});
+function tick5(dt){const tgt=target5();if(Math.abs(tgt-S5.dL)>.05){S5.dL=RM?tgt:lerp(S5.dL,tgt,clamp(dt*2.2,0,1));draw5();say5();}}
+draw5();say5();
+
+/* ---------- 6단계 ---------- */
+const QZ=[
+ {q:'밀물과 썰물이 생기게 하는 것은 무엇일까요?',c:['바람','달이 끌어당기는 힘','자석'],a:1,ok:'맞아요! 달이 끌어당기는 힘 때문이에요.',no:'다시 생각해 봐요. 3단계에서 달을 숨기면 어떻게 됐나요?'},
+ {q:'하루에 바닷물은 몇 번쯤 가득 찰까요?',c:['1번','2번','10번'],a:1,ok:'맞아요! 부푼 곳이 두 군데라서 하루에 두 번이에요.',no:'4단계에서 하루를 돌려 보고 다시 세어 봐요.'},
+ {q:'부푼 바닷물은 그대로 있어요. 그럼 무엇이 돌까요?',c:['지구','바닷물만','그릇'],a:0,ok:'맞아요! 지구가 하루에 한 바퀴 돌아요.',no:'4단계에서 무엇이 빙글빙글 돌았는지 떠올려 봐요.'}
+];
+const qok={};
+$('#quiz').innerHTML=QZ.map((z,i)=>`<div class="qitem"><h3>${i+1}. ${z.q}</h3><div class="choices">${z.c.map((c,j)=>`<button data-q="${i}" data-j="${j}">${c}</button>`).join('')}</div><p class="fb" id="fb${i}" aria-live="polite"></p></div>`).join('');
+$$('#quiz [data-q]').forEach(b=>b.onclick=()=>{const i=+b.dataset.q,j=+b.dataset.j,z=QZ[i];
+  $$(`#quiz [data-q="${i}"]`).forEach(x=>x.classList.remove('right','wrong'));
+  const good=j===z.a;b.classList.add(good?'right':'wrong');$('#fb'+i).textContent=good?z.ok:z.no;qok[i]=good;
+  const n=Object.values(qok).filter(Boolean).length;
+  $('#sticker').hidden=n<3;$('#qprog').textContent=n<3?`세 문제 중 ${n}문제를 맞혔어요.`:'세 문제를 모두 맞혔어요!';});
+
+/* ---------- 4단계: 바닷길 탐험 ---------- */
+const G4=[[0,140],[140,140],[200,190],[250,250],[370,272],[380,284],[600,284],[612,272],[640,200],[670,178],[705,180],[725,250],[745,335],[800,340]];
+function gY4(x){for(let i=0;i<G4.length-1;i++){const[a,b]=G4[i],[c,d]=G4[i+1];if(x<=c)return b+(d-b)*(x-a)/(c-a);}return 340;}
+const MARKY=[270,252,234,216,198];
+const CRE=[
+ {x:258,k:'crab',name:'칠게',j:'를',desc:'갯벌에 구멍을 파고 사는 작은 게예요. 바닷물이 들어오면 구멍 속으로 쏙 숨어요.'},
+ {x:282,k:'snail',name:'갯고둥',j:'을',desc:'돌돌 말린 껍데기를 지고 갯벌 위를 천천히 기어 다녀요.'},
+ {x:306,k:'clam',name:'바지락',j:'을',desc:'갯벌 속에 숨어 사는 조개예요. 바닷물이 들어오면 물속의 먹이를 먹어요.'},
+ {x:330,k:'fish',name:'짱뚱어',j:'를',desc:'지느러미로 갯벌 위를 폴짝폴짝 뛰어다니는 물고기예요.'},
+ {x:354,k:'worm',name:'갯지렁이',j:'를',desc:'갯벌 속에 구멍을 파고 살아요. 갯벌을 깨끗하게 해 줘요.'}];
+function crSVG(k){switch(k){
+ case 'crab':return `<path d="M-9 -4 l-7 -4 M9 -4 l7 -4 M-8 -1 l-6 4 M8 -1 l6 4" class="s-flag" stroke-width="2" fill="none"/><ellipse cy="-6" rx="10" ry="6" class="f-flag"/><path d="M-4 -11 v-5 M4 -11 v-5" class="s-ink" stroke-width="1.6"/><circle cx="-4" cy="-16" r="2.2" class="f-ink"/><circle cx="4" cy="-16" r="2.2" class="f-ink"/><circle cx="-13" cy="-12" r="3.5" class="f-flag"/><circle cx="13" cy="-12" r="3.5" class="f-flag"/>`;
+ case 'snail':return `<path d="M-11 0 L-3 -21 L9 0 Z" class="f-shell"/><path d="M-8 -6 L6 -6 M-6 -12 L3 -12 M-4 -17 L0 -17" class="s-ink" stroke-width="1.3" opacity=".5"/>`;
+ case 'clam':return `<path d="M-12 0 Q0 -21 12 0 Z" class="f-clam"/><path d="M0 -15 V0 M-5 -12 L-7 0 M5 -12 L7 0" class="s-ink" stroke-width="1" opacity=".45"/>`;
+ case 'fish':return `<ellipse cx="0" cy="-6" rx="13" ry="5.5" class="f-fish"/><path d="M12 -6 L21 -12 L21 0 Z" class="f-fish"/><circle cx="-7" cy="-12" r="3.4" fill="#fff"/><circle cx="-7" cy="-12" r="1.7" class="f-ink"/><path d="M-3 -2 l-4 5" class="s-ink" stroke-width="1.6"/>`;
+ case 'worm':return `<ellipse cx="0" cy="0" rx="7" ry="2.5" class="f-ink" opacity=".5"/><path d="M0 0 C -6 -6, 6 -10, 0 -16 C -5 -21, 4 -24, 2 -27" fill="none" class="s-worm" stroke-width="4" stroke-linecap="round"/>`;}
+ return '';}
+const KID4=`<circle cy="-28" r="6.5" fill="#F2C9A0" stroke="#173445" stroke-width="1"/><rect x="-5.5" y="-21" width="11" height="13" rx="3" class="f-roof2"/><path d="M-3 -8 v8 M3 -8 v8" class="s-ink" stroke-width="3" stroke-linecap="round"/>`;
+function arrow4(dir,label){return `<path d="${dir<0?'M44 0 H-34':'M-44 0 H34'}" stroke="#fff" stroke-width="7" stroke-linecap="round" marker-end="url(#arWhite)"/>`+(label?`<text y="-16" text-anchor="middle" class="t-w" font-size="19" stroke="#1C5E92" stroke-width="4" paint-order="stroke">${label}</text>`:'');}
+function islandSVG(p,o){o=o||{};
+  const above='0,0 800,0 '+G4.slice().reverse().map(q=>q.join(',')).join(' ');
+  const ground=G4.map(q=>q.join(',')).join(' ')+' 800,360 0,360';
+  const ly=o.level!=null?o.level:250;
+  const house=(x,c)=>`<g transform="translate(${x} 140)"><rect x="-15" y="-24" width="30" height="24" class="f-house"/><path d="M-19 -23 L0 -40 L19 -23 Z" class="${c}"/><rect x="-4" y="-13" width="8" height="13" class="f-ink" opacity=".5"/></g>`;
+  const marks=MARKY.map((y,i)=>`<rect x="384" y="${y-7}" width="18" height="14" rx="3" fill="#fff" stroke="#3a4a55"/><text x="393" y="${y+4}" text-anchor="middle" font-size="11" font-family="sans-serif" fill="#173445">${i+1}</text>`).join('');
+  const cr=o.stat?'':CRE.map((c,i)=>`<g class="cr" id="${p}cr${i}" data-cr="${i}" tabindex="0" role="button" aria-label="${c.name} 찾기" transform="translate(${c.x} ${gY4(c.x).toFixed(1)})"><circle cy="-10" r="15" fill="transparent"/>${crSVG(c.k)}</g>`).join('');
+  const ar=o.dir?arrow4(o.dir,o.noLabel?'':(o.dir<0?'밀물':'썰물')):'';
+  return `<svg viewBox="0 0 800 360" role="img" aria-label="마을과 섬 사이 바닷길을 옆에서 본 모습">
+  <defs><clipPath id="${p}c"><polygon points="${above}"/></clipPath></defs>
+  <rect width="800" height="360" class="f-sky"/>
+  <circle id="${p}sun" cx="120" cy="60" r="26" class="f-sun"/>
+  <g class="f-cloud" opacity=".9"><ellipse cx="330" cy="62" rx="36" ry="13"/><ellipse cx="356" cy="54" rx="24" ry="12"/><ellipse cx="560" cy="90" rx="30" ry="10"/></g>
+  <polygon points="${ground}" class="f-mud"/>
+  <polygon points="0,140 140,140 200,190 250,250 250,360 0,360" class="f-sand"/>
+  <polygon points="612,272 640,200 670,178 705,180 725,250 745,335 745,360 612,360" class="f-sand"/>
+  <path d="M0 140 L140 140 L172 167" fill="none" class="s-grass" stroke-width="9"/>
+  <path d="M630 224 L640 200 L670 178 L705 180 L716 214" fill="none" class="s-grass" stroke-width="9"/>
+  ${house(40,'f-roof')}${house(95,'f-roof2')}
+  <text x="70" y="176" text-anchor="middle" class="t-d" font-size="18">마을</text>
+  <rect x="684" y="148" width="6" height="32" class="f-pole"/><circle cx="687" cy="142" r="17" class="f-land2"/>
+  <text x="690" y="225" text-anchor="middle" class="t-d" font-size="18">섬</text>
+  <rect x="380" y="280" width="220" height="8" rx="3" class="f-road"/>
+  <path d="M386 284 H596" class="s-ink" stroke-width="2" stroke-dasharray="6 10" opacity=".3"/>
+  <text x="500" y="312" text-anchor="middle" class="t-d" font-size="17">바닷길</text>
+  <text x="300" y="300" text-anchor="middle" class="t-s">갯벌</text>
+  <rect x="390" y="186" width="6" height="98" class="f-pole"/>${marks}
+  ${cr}
+  ${o.stat?'':`<g id="${p}kid" transform="translate(215 ${gY4(215).toFixed(1)})">${KID4}</g>`}
+  <g clip-path="url(#${p}c)"><rect id="${p}w" x="0" y="${ly}" width="800" height="400" class="f-sea" opacity=".8"/><path id="${p}wl" d="M0 ${ly} H800" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".75"/></g>
+  <g id="${p}ar" transform="translate(500 ${ly-28})">${ar}</g>
+  ${o.stat?'':`<rect id="${p}n" width="800" height="360" class="f-space" opacity="0" style="pointer-events:none"/><g id="${p}st" opacity="0" style="pointer-events:none"></g>`}
+  </svg>`;}
+
+const P4=12.42,H4=3,TMAX=72,ROAD=287;
+const tH=T=>Math.cos(2*Math.PI*(T-H4)/P4);
+const tD=T=>-Math.sin(2*Math.PI*(T-H4)/P4);
+const lvY=T=>lerp(296,192,(tH(T)+1)/2);
+const open4=T=>lvY(T)>ROAD;
+function fmt4(T){const hr=((T%24)+24)%24;let h=Math.floor(hr),mi=Math.round((hr-h)*60);if(mi===60){mi=0;h=(h+1)%24;}
+  const ap=h<12?'오전':'오후',hh=h%12===0?12:h%12;return `${ap} ${hh}:${String(mi).padStart(2,'0')}`;}
+const EX4=[];for(let k=0;k<7;k++){EX4.push({T:H4+k*P4,hi:1});EX4.push({T:H4+P4/2+k*P4,hi:0});}
+EX4.sort((a,b)=>a.T-b.T);
+function phase4(T){const h=tH(T);if(h>.97)return 'high';if(h<-.97)return 'low';return tD(T)>0?'in':'out';}
+const PH4={in:['밀물','바닷물이 육지 쪽으로 밀려 들어와요. 바닷물의 높이가 높아져요.'],out:['썰물','바닷물이 바다 쪽으로 빠져나가요. 바닷물의 높이가 낮아져요.'],high:['가장 높아요','바닷물이 가장 높이 들어왔어요. 갯벌과 바닷길이 모두 잠겼어요.'],low:['가장 낮아요','바닷물이 가장 많이 빠졌어요. 바닷길이 활짝 열렸어요!']};
+const GUIDE4={in:'바닷물이 <b>육지 쪽으로 밀려 들어오고</b> 있어요. 표지판 눈금이 하나씩 잠기며 높이가 <b>높아져요</b>. 이것이 <b>밀물</b>이에요.',
+  out:'바닷물이 <b>바다 쪽으로 빠져나가고</b> 있어요. 갯벌이 넓게 드러나고 높이가 <b>낮아져요</b>. 이것이 <b>썰물</b>이에요.',
+  high:'바닷물이 가장 높이 올라왔어요! 갯벌과 바닷길이 모두 잠겼어요. 이제 곧 빠져나가기 시작해요.',
+  low:'바닷물이 가장 많이 빠졌어요! 바닷길이 활짝 열렸어요. 섬으로 걸어가 보거나 갯벌 친구를 찾아보세요.'};
+const S4={T:8.5,playing:false,speed:1.5,walk:null,found:new Set(),log:[],gday:-1,ph:'',sel:-1};
+$('#isl4').innerHTML=islandSVG('i4',{});
+stars($('#i4st'),800,140,40,19);
+const E4={w:$('#i4w'),wl:$('#i4wl'),kid:$('#i4kid'),ar:$('#i4ar'),n:$('#i4n'),st:$('#i4st'),sun:$('#i4sun'),cr:CRE.map((c,i)=>$('#i4cr'+i)),cells:$$('#cells4 div'),mk:null,mkd:null};
+function guide4(h){$('#guide4t').innerHTML='<b>칠게 박사:</b> '+h;}
+function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
+const X4=t=>40+t*(530/24),Y4=h=>72-h*40;
+function buildGraph4(day){const t0=day*24;let s='';
+  let inW=false,ws=0;
+  for(let i=0;i<=480;i++){const t=i/20,o=open4(t0+t);if(o&&!inW){inW=true;ws=t;}if(inW&&(!o||i===480)){inW=false;s+=`<rect x="${X4(ws).toFixed(1)}" y="10" width="${(X4(t)-X4(ws)).toFixed(1)}" height="108" class="f-open" opacity=".35"/>`;}}
+  s+=`<rect x="${X4(0)}" y="10" width="${X4(6)-X4(0)}" height="108" class="f-space" opacity=".18"/><rect x="${X4(18)}" y="10" width="${X4(24)-X4(18)}" height="108" class="f-space" opacity=".18"/>
+  <text x="${X4(3)}" y="26" text-anchor="middle" class="t-s" opacity=".75">밤</text><text x="${X4(12)}" y="26" text-anchor="middle" class="t-s" opacity=".75">낮</text><text x="${X4(21)}" y="26" text-anchor="middle" class="t-s" opacity=".75">밤</text>`;
+  let d='';for(let i=0;i<=96;i++){const t=i/4;d+=(i?' L':'M')+X4(t).toFixed(1)+' '+Y4(tH(t0+t)).toFixed(1);}
+  s+=`<path d="${d} L${X4(24)} 118 L${X4(0)} 118 Z" class="f-sea" opacity=".15"/><path d="${d}" fill="none" class="s-sea" stroke-width="4" stroke-linecap="round"/>
+  <line x1="${X4(0)}" y1="118" x2="${X4(24)}" y2="118" class="s-muted" stroke-width="1.5"/>`;
+  [[0,'밤 12시'],[6,'오전 6시'],[12,'낮 12시'],[18,'오후 6시'],[24,'밤 12시']].forEach(([t,l])=>{s+=`<line x1="${X4(t)}" y1="118" x2="${X4(t)}" y2="124" class="s-muted" stroke-width="1.5"/><text x="${X4(t)}" y="142" text-anchor="middle" class="t-s">${l}</text>`;});
+  s+=`<text x="16" y="72" text-anchor="middle" class="t-s" transform="rotate(-90 16 72)">물 높이</text><line id="mk4" y1="10" y2="118" stroke-width="2.5" class="s-flag"/><circle id="mkd4" r="7" class="f-flag" stroke="#fff" stroke-width="2"/>`;
+  $('#gr4').innerHTML=s;E4.mk=$('#mk4');E4.mkd=$('#mkd4');$('#gt4').textContent=`오늘(${day+1}일째)의 바닷물 높이 그래프`;}
+function draw4(){
+  const T=S4.T,ly=lvY(T),ph=phase4(T);
+  E4.w.setAttribute('y',ly.toFixed(1));
+  let d='';for(let x=0;x<=800;x+=16){d+=(x?' L':'M')+x+' '+(ly+2.4*Math.sin(x/19+phase)).toFixed(1);}E4.wl.setAttribute('d',d);
+  CRE.forEach((c,i)=>{const el=E4.cr[i],vis=gY4(c.x)<ly-3;if(el._v!==vis){el._v=vis;el.style.visibility=vis?'visible':'hidden';el.setAttribute('tabindex',vis?'0':'-1');}});
+  let kx=215;
+  if(S4.walk){const w=S4.walk,O=3,ST=1.4;let k=w.t<O?w.t/O:(w.t<O+ST?1:Math.max(0,1-(w.t-O-ST)/O));k=k*k*(3-2*k);kx=lerp(215,655,k);}
+  E4.kid.setAttribute('transform',`translate(${kx.toFixed(1)} ${gY4(kx).toFixed(1)})`);
+  if(ph!==S4.ph){S4.ph=ph;
+    E4.ar.innerHTML=(ph==='in'||ph==='out')?arrow4(ph==='in'?-1:1,ph==='in'?'밀물':'썰물'):'';
+    const tg=$('#ph4');tg.textContent=PH4[ph][0];tg.className='tag'+(ph==='out'||ph==='low'?' low':'');$('#phs4').textContent=PH4[ph][1];
+    if(S4.playing)guide4(GUIDE4[ph]);}
+  E4.ar.setAttribute('transform',`translate(500 ${(ly-28).toFixed(1)})`);
+  const hr=T-24*Math.floor(T/24),nt=clamp(.5+1.8*Math.cos(2*Math.PI*hr/24),0,1);
+  E4.n.setAttribute('opacity',(nt*.55).toFixed(2));E4.st.setAttribute('opacity',nt.toFixed(2));E4.sun.setAttribute('opacity',(1-nt).toFixed(2));
+  const day=Math.min(2,Math.floor(T/24));
+  $('#clk4').textContent=fmt4(T);$('#day4').textContent=(day+1)+'일째';
+  const cnt=MARKY.filter(y=>ly<y).length;
+  E4.cells.forEach((c,j)=>c.classList.toggle('on',(5-j)<=cnt));
+  $('#gn4').textContent=cnt+'칸';
+  $('#gtx4').textContent=cnt===0?'눈금이 모두 물 밖에 있어요':ph==='in'?'잠긴 눈금이 늘어나요 → 높아져요':ph==='out'?'잠긴 눈금이 줄어들어요 → 낮아져요':'바닷물에 잠긴 눈금 수예요';
+  const op=open4(T),rp=$('#road4');rp.textContent=op?'열렸어요':'물에 잠겼어요';rp.className='pill '+(op?'open':'closed');
+  $('#walk4').disabled=!!S4.walk;
+  if(day!==S4.gday){S4.gday=day;buildGraph4(day);}
+  const gx=X4(T-24*day);E4.mk.setAttribute('x1',gx);E4.mk.setAttribute('x2',gx);E4.mkd.setAttribute('cx',gx);E4.mkd.setAttribute('cy',Y4(tH(T)));
+  $('#tm4').value=Math.round(T*10);
+}
+function setPlay4(p){S4.playing=p;$('#play4').textContent=p?'⏸ 멈추기':(S4.T>=TMAX?'↺ 처음부터':'▶ 재생');}
+function renderLog4(){const ol=$('#log4');
+  ol.innerHTML=S4.log.length?S4.log.map(e=>`<li><span class="tag${e.hi?'':' low'}">${e.hi?'가장 높을 때':'가장 낮을 때'}</span> ${Math.floor(e.T/24)+1}일째 ${fmt4(e.T)}</li>`).join(''):'<li class="empty">재생하면 바닷물이 가장 높을 때와 가장 낮을 때를 자동으로 적어 줘요.</li>';
+  $('#res4').hidden=S4.log.length<4;ol.scrollTop=ol.scrollHeight;}
+function tick4(dt){
+  if(S4.walk){const w=S4.walk;w.t+=dt;
+    if(w.t>=3&&!w.arrived){w.arrived=true;guide4(`섬에 도착했어요! 바닷길은 <b>${fmt4(w.close)}</b>쯤 다시 물에 잠겨요. 그 전에 마을로 돌아가요.`);}
+    if(w.t>=7.4){S4.walk=null;guide4('무사히 마을로 돌아왔어요! 바닷물이 들어오기 전에 돌아오는 것이 안전 약속이에요.');if(w.was)setPlay4(true);}
+  } else if(S4.playing){const pT=S4.T;S4.T=Math.min(TMAX,S4.T+dt*S4.speed);
+    EX4.forEach(e=>{if(e.T>pT&&e.T<=S4.T){S4.log.push(e);renderLog4();}});
+    if(S4.T>=TMAX){setPlay4(false);guide4('3일 동안의 바닷물을 모두 지켜봤어요! 관찰 기록장을 살펴보세요.');}}
+  draw4();}
+$('#play4').onclick=()=>{if(S4.walk)return;if(S4.playing){setPlay4(false);return;}
+  if(S4.T>=TMAX){S4.T=0;S4.log=[];renderLog4();}
+  setPlay4(true);if(S4.ph)guide4(GUIDE4[S4.ph]);};
+$$('#step-2 .seg button[data-sp4]').forEach(b=>b.onclick=()=>{S4.speed=+b.dataset.sp4;$$('#step-2 .seg button[data-sp4]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));});
+function jump4(hi){if(S4.walk)return;const base=H4+(hi?0:P4/2),k=Math.ceil((S4.T+.02-base)/P4),t=base+k*P4;
+  if(t>TMAX){guide4('3일째가 끝났어요. ▶ 버튼으로 처음부터 다시 해 보세요.');return;}
+  S4.T=t;setPlay4(false);guide4(hi?GUIDE4.high:GUIDE4.low);draw4();}
+$('#hi4').onclick=()=>jump4(true);$('#lo4').onclick=()=>jump4(false);
+$('#tm4').addEventListener('input',e=>{if(S4.walk)return;S4.T=e.target.value/10;setPlay4(false);draw4();});
+$('#clr4').onclick=()=>{S4.log=[];renderLog4();};
+$('#walk4').onclick=()=>{if(S4.walk)return;const T=S4.T,btn=$('#walk4');
+  if(!open4(T)){guide4('지금은 바닷길이 물에 잠겨 있어요. 썰물 때 길이 드러날 때까지 기다려요.');shake(btn);return;}
+  let close=T+12;for(let d=0;d<12;d+=.05){if(!open4(T+d)){close=T+d;break;}}
+  if(close-T<.7){guide4('곧 바닷물이 들어와 길이 잠겨요! 위험하니 오늘은 가지 말고 다음 썰물을 기다려요.');shake(btn);return;}
+  S4.walk={t:0,was:S4.playing,close,arrived:false};S4.playing=false;setPlay4(false);
+  guide4('바닷길이 드러났어요! 바닷길을 따라 섬으로 걸어가요.');};
+function renderFriends(){
+  $('#fc4').textContent=S4.found.size+'/5';
+  $('#slots4').innerHTML=CRE.map((c,i)=>S4.found.has(i)?`<button class="slot got" data-slot="${i}" aria-label="${c.name} 설명 보기"><svg viewBox="-24 -30 48 34" aria-hidden="true">${crSVG(c.k)}</svg>${c.name}</button>`:`<div class="slot" aria-label="아직 못 찾았어요">?</div>`).join('');
+  $$('#slots4 [data-slot]').forEach(b=>b.onclick=()=>{S4.sel=+b.dataset.slot;renderFriends();});
+  const c=CRE[S4.sel];
+  $('#finfo4').innerHTML=c?`<div class="finfo"><svg viewBox="-24 -30 48 34" aria-hidden="true">${crSVG(c.k)}</svg><div><h4>${c.name}</h4><p>${c.desc}</p></div></div>`:`<p class="caption">바닷물이 빠져 갯벌이 드러났을 때, 그림 속 생물을 눌러 보세요.</p>`;}
+function find4(i){const c=CRE[i];const isNew=!S4.found.has(i);S4.found.add(i);S4.sel=i;renderFriends();
+  guide4(S4.found.size===5&&isNew?'갯벌 친구 다섯을 모두 찾았어요! 갯벌에는 많은 생물이 살아요.':`<b>${c.name}</b>${c.j} 찾았어요! ${c.desc}`);}
+$('#isl4').addEventListener('click',e=>{const g=e.target.closest('.cr');if(g&&g.style.visibility!=='hidden')find4(+g.dataset.cr);});
+$('#isl4').addEventListener('keydown',e=>{const g=e.target.closest&&e.target.closest('.cr');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();find4(+g.dataset.cr);}});
+renderFriends();renderLog4();draw4();
+
+/* ---------- 7단계: 한눈에 정리 ---------- */
+const RC_ROWS=[{l:'바닷물의 이동',o:['육지 쪽으로 밀려 들어와요','바다 쪽으로 빠져나가요']},{l:'바닷물의 높이',o:['높아져요','낮아져요']},{l:'바닷가 모습',o:['갯벌과 바닷길이 잠겨요','갯벌과 바닷길이 드러나요']}];
+const RC_COLS=[{n:'밀물',s:'바닷물이 들어올 때',lv:206,dir:-1},{n:'썰물',s:'바닷물이 나갈 때',lv:290,dir:1}];
+function buildRecap(all){
+  $('#recap7').innerHTML=RC_COLS.map((c,ci)=>`<div class="rcol"><h3>${c.n}<small>${c.s}</small></h3>${islandSVG('rc'+ci,{stat:1,level:c.lv,dir:c.dir,noLabel:1})}${RC_ROWS.map((r,ri)=>`<div class="rrow"><span>${r.l}</span><div class="ropts">${r.o.map((o,oi)=>`<button data-rc="${ci}-${ri}-${oi}"${all&&oi===ci?' class="right"':''}>${o}</button>`).join('')}</div></div>`).join('')}</div>`).join('');
+  $$('#recap7 [data-rc]').forEach(b=>b.onclick=()=>{const[ci,,oi]=b.dataset.rc.split('-').map(Number);
+    if(oi===ci){b.classList.add('right');}else{b.classList.add('wrong');setTimeout(()=>b.classList.remove('wrong'),800);}});}
+$('#rcAll').onclick=()=>buildRecap(true);$('#rcReset').onclick=()=>buildRecap(false);
+buildRecap(false);
+const BL7=['밀물 때에는 바닷물이 육지 쪽으로 {밀려 들어와요}. 바닷물의 높이가 {높아져요}.','썰물 때에는 바닷물이 바다 쪽으로 {빠져나가요}. 바닷물의 높이가 {낮아져요}.','하루에 밀물과 썰물은 {두 번쯤씩} 번갈아 일어나요.','섬까지 걸어갈 수 있는 때는 바닷길이 드러나는 {썰물 때}예요.'];
+$('#blanks7').innerHTML=BL7.map(s=>`<li>${s.replace(/\{([^}]+)\}/g,(_,a)=>`<button class="blank" data-a="${a}" aria-label="빈칸, 눌러서 답 보기">?</button>`)}</li>`).join('');
+$$('#blanks7 .blank').forEach(b=>b.onclick=()=>{b.textContent=b.dataset.a;b.classList.add('shown');b.removeAttribute('aria-label');});
+
+/* ---------- 8단계: 확인 퀴즈 ---------- */
+const QZ8=[
+ {q:'화살표를 보세요. 바닷물은 어느 쪽으로 움직이고 있나요?',pics:[{level:240,dir:-1}],o:['육지 쪽으로 밀려 들어와요','바다 쪽으로 빠져나가요'],a:0,hint:'화살표가 마을 쪽과 바다 쪽 중 어디를 가리키는지 봐요.',ex:'바닷물이 육지 쪽으로 밀려 들어오고 있어요. 이것이 밀물이에요.'},
+ {q:'밀물 때 바닷물의 높이는 어떻게 될까요?',o:['높아져요','낮아져요','그대로예요'],a:0,hint:'2단계에서 밀물 때 표지판 눈금이 어떻게 되었는지 떠올려 봐요.',ex:'밀물 때는 바닷물이 밀려 들어와서 바닷물의 높이가 높아져요.'},
+ {q:'썰물 때 바닷물은 어느 쪽으로 움직일까요?',o:['육지 쪽으로 밀려 들어와요','바다 쪽으로 빠져나가요'],a:1,hint:'썰물 때 갯벌이 드러난 모습을 떠올려 봐요.',ex:'썰물 때는 바닷물이 바다 쪽으로 빠져나가서 갯벌이 드러나요.'},
+ {q:'바닷가의 모습이 A에서 B로 바뀌었어요. 밀물일까요, 썰물일까요?',pics:[{level:212,cap:'A (먼저)'},{level:292,cap:'B (나중)'}],o:['밀물','썰물'],a:1,hint:'B에서 갯벌과 바닷길이 어떻게 되었나요?',ex:'바닷물이 빠져나가 갯벌과 바닷길이 드러났어요. 썰물이에요.'},
+ {q:'바닷물이 육지 쪽까지 가득 들어온 모습이에요. 어느 때의 모습일까요?',pics:[{level:196}],o:['밀물 때','썰물 때'],a:0,hint:'갯벌과 바닷길이 보이나요?',ex:'바닷물이 가득 들어와 갯벌과 바닷길이 잠겼어요. 밀물 때의 모습이에요.'},
+ {q:'지금 걸어서 섬에 갈 수 있을까요?',pics:[{level:258}],o:['갈 수 있어요','갈 수 없어요'],a:1,hint:'섬으로 가는 바닷길이 보이나요?',ex:'바닷길이 물에 잠겨 있어요. 썰물 때 길이 드러날 때까지 기다려야 해요.'},
+ {q:'바닷물이 가득 들어왔다가 빠져나가는 일은 하루에 몇 번쯤 일어날까요?',o:['한 번쯤','두 번쯤','열 번쯤'],a:1,hint:'2단계의 관찰 기록장을 떠올려 봐요.',ex:'하루에 두 번쯤 가득 들어오고, 두 번쯤 빠져나가요.'},
+ {q:'갯벌 체험을 하는데 바닷물이 들어오기 시작했어요. 어떻게 해야 할까요?',o:['조개를 더 줍고 나와요','바로 육지 쪽으로 나와요','바닷길 끝까지 가 봐요'],a:1,hint:'바닷물은 생각보다 훨씬 빨리 들어와요.',ex:'바닷물이 들어오기 시작하면 바로 육지 쪽으로 나와야 안전해요.'}];
+const r8=QZ8.map(()=>({first:null,ok:false}));
+const ML8=['바닷물이 육지 쪽으로 밀려 들어와요 → 밀물','바닷물이 바다 쪽으로 빠져나가요 → 썰물'];
+const MR8=[{t:'바닷물의 높이가 낮아져요',a:1},{t:'바닷물의 높이가 높아져요',a:0}];
+let mSel8=-1;const mDone8={};
+function score8(){$('#sc8').textContent=r8.filter(r=>r.ok&&r.first).length;
+  $('#cert8').hidden=!(r8.every(r=>r.ok)&&Object.keys(mDone8).length===2);}
+$('#quiz8').innerHTML=QZ8.map((z,i)=>`<div class="qitem"><h3>${i+1}. ${z.q}</h3>${z.pics?`<div class="qpics">${z.pics.map((p,j)=>`<figure>${islandSVG(`q${i}_${j}`,{stat:1,level:p.level,dir:p.dir,noLabel:1})}${p.cap?`<figcaption>${p.cap}</figcaption>`:''}</figure>`).join('')}</div>`:''}<div class="choices">${z.o.map((c,j)=>`<button data-q8="${i}" data-j="${j}">${c}</button>`).join('')}</div><p class="fb" id="fb8_${i}" aria-live="polite"></p></div>`).join('');
+$$('#quiz8 [data-q8]').forEach(b=>b.onclick=()=>{const i=+b.dataset.q8,j=+b.dataset.j,z=QZ8[i],r=r8[i];if(r.ok)return;
+  const good=j===z.a,f=$('#fb8_'+i);if(r.first===null)r.first=good;
+  if(good){r.ok=true;$$(`#quiz8 [data-q8="${i}"]`).forEach(x=>x.classList.remove('wrong'));b.classList.add('right');f.className='fb exp';f.textContent='딩동댕! '+z.ex;}
+  else{b.classList.add('wrong');f.className='fb hint';f.textContent='힌트: '+z.hint;}
+  score8();});
+(function(){let h='';for(let i=0;i<2;i++){h+=`<button class="mcard" data-ml="${i}">${ML8[i]}</button><button class="mcard" data-mr="${i}">${MR8[i].t}</button>`;}$('#mwrap8').insertAdjacentHTML('beforeend',h);})();
+function drawLines8(){const w=$('#mwrap8');if(!w||!w.offsetParent)return;const R=w.getBoundingClientRect();let s='';
+  Object.keys(mDone8).forEach(i=>{const a=w.querySelector(`[data-ml="${i}"]`).getBoundingClientRect(),b=w.querySelector(`[data-mr="${mDone8[i]}"]`).getBoundingClientRect();
+    s+=`<line x1="${(a.right-R.left).toFixed(1)}" y1="${(a.top+a.height/2-R.top).toFixed(1)}" x2="${(b.left-R.left).toFixed(1)}" y2="${(b.top+b.height/2-R.top).toFixed(1)}" stroke-width="4" stroke-linecap="round" style="stroke:var(--ok)"/>`;});
+  $('#mlines8').innerHTML=s;}
+function paint8(){
+  $$('#mwrap8 [data-ml]').forEach(b=>{const i=+b.dataset.ml;b.classList.toggle('sel',i===mSel8);b.classList.toggle('done',mDone8[i]!==undefined);});
+  $$('#mwrap8 [data-mr]').forEach(b=>{b.classList.toggle('done',Object.values(mDone8).includes(+b.dataset.mr));});drawLines8();}
+$('#mwrap8').addEventListener('click',e=>{const l=e.target.closest('[data-ml]'),r=e.target.closest('[data-mr]'),fb=$('#mfb8');
+  if(l){const i=+l.dataset.ml;if(mDone8[i]!==undefined)return;mSel8=i;fb.textContent='';paint8();}
+  else if(r){const j=+r.dataset.mr;if(Object.values(mDone8).includes(j))return;
+    if(mSel8<0){fb.textContent='왼쪽 카드를 먼저 눌러요.';return;}
+    if(MR8[j].a===mSel8){mDone8[mSel8]=j;mSel8=-1;paint8();
+      if(Object.keys(mDone8).length===2)fb.innerHTML='<b style="color:var(--ok)">잘했어요!</b> 바닷물이 밀려 들어오면 높이가 높아지고(밀물), 빠져나가면 낮아져요(썰물).';
+      score8();}
+    else{r.classList.add('wrong');setTimeout(()=>r.classList.remove('wrong'),700);fb.textContent='다시 생각해 봐요. 바닷물이 들어오면 높이는 어떻게 될까요?';}}});
+window.addEventListener('resize',drawLines8);
+
+/* ---------- 9단계: 더 알아보기 ---------- */
+$('#ttable9').innerHTML=EX4.filter(e=>e.T<24).map(e=>`<tr><td>${e.hi?'가장 높을 때':'가장 낮을 때'}</td><td>${fmt4(e.T)}</td></tr>`).join('');
+$('#lmini9').innerHTML=islandSVG('l9',{stat:1,level:293});
+
+/* ---------- 움직임 ---------- */
+let lastT=performance.now();
+function frame(now){step(now);requestAnimationFrame(frame);}
+// 화면 갱신이 멈춘 환경에서도 시뮬레이션이 돌아가도록 하는 보조 타이머
+setInterval(()=>{const n=performance.now();if(n-lastT>200)step(n);},50);
+function step(now){const dt=Math.min(.1,(now-lastT)/1000);lastT=now;
+  if(!RM)phase+=dt*2.2;
+  if(cur===1){const B=beaches.b1;const k=RM?1:clamp(dt*3,0,1);B.level=lerp(B.level,t1,k);drawBeach('b1');}
+  else if(cur===3)tick2(dt);
+  else if(cur===4){if(S3.playing)tick3(dt);else if(!RM)drawBeach('b3');}
+  else if(cur===2)tick4(dt);
+  else if(cur===6)tick5(dt);}
+drawBeach('b1');drawBeach('b3');
+const m=/^#step-([1-9])$/.exec(location.hash||'');go(m?+m[1]:1,true);
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
